@@ -640,6 +640,15 @@ a:focus {
   color: #133e3f;
 }
 
+.event_section .pgn-box a {
+  display: inline-block;
+  padding: 8px 45px;
+  background-color: transparent;
+  border: 1px solid #133e3f;
+  color: #133e3f;
+  margin-top: 35px;
+}
+
 .client_section .heading_container {
   margin-bottom: 45px;
 }

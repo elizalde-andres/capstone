@@ -9,4 +9,5 @@ admin.site.register(TestPart)
 admin.site.register(Test)
 admin.site.register(Answer)
 admin.site.register(TestResult)
+admin.site.register(Category)
 
