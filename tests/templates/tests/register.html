@@ -1,0 +1,61 @@
+{% extends "tests/layout.html" %}
+{% load static %}
+
+{% block body %}
+  <!-- register section -->
+  {% if message %}
+  <div class="col-md-12 alert-danger">
+      {{ message }} 
+  </div>
+  {% endif %}
+  <section class="login_section layout_padding">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="detail-box">
+            <h3>
+              ALREADY HAVE AN ACCOUNT?
+            </h3>
+            <p>
+              Click the Login button below to sign in.
+            </p>
+            <a href="{% url 'login' %}">
+              LOGIN
+            </a>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="login_form">
+            <h5>
+              Register Now
+            </h5>
+            <form action="{% url 'register' %}" method="post">
+              {% csrf_token %}
+              <div>
+                <input type="text" name="username" autofocus placeholder="Username" />
+              </div>
+              <div>
+                <input type="text" name="last_name" placeholder="Last Name" />
+              </div>
+              <div>
+                <input type="text" name="first_name" placeholder="First Name" />
+              </div>
+              <div>
+                <input type="email" name="email" placeholder="Email" />
+              </div>
+              <div>
+                <input type="password" name="password" placeholder="Password" />
+              </div>
+              <div>
+                <input type="password" name="confirmation" placeholder="Repeat password" />
+              </div>
+              <button type="submit">Register</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- end register section -->
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "tests/layout.html" %}
+{% load static %}
+
+{% block body %}
+  <!-- login section -->
+  {% if message %}
+  <div class="col-md-12 alert-danger">
+      {{ message }} 
+  </div>
+  {% endif %}
+  <section class="login_section layout_padding">
+    
+    <div class="container">
+      
+      <div class="row">
+        <div class="col-md-6">
+          <div class="detail-box">
+            <h3>
+              TAKE ONLINE TESTS
+            </h3>
+            <p>
+              Create your free account now and get immediate access to 100s of
+              tests
+            </p>
+            <a href="{% url 'register' %}">
+              REGISTER NOW
+            </a>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="login_form">
+            <h5>
+              Login Now
+            </h5>
+            <form action="{% url 'login' %}" method="post">
+              {% csrf_token %}
+              <div>
+                <input type="text" name="username" autofocus placeholder="Username" />
+              </div>
+              <div>
+                <input type="password" name="password" placeholder="Password" />
+              </div>
+              <button type="submit">Login</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- end login section -->
+{% endblock %}
