@@ -1,0 +1,100 @@
+{% extends "tests/layout.html" %}
+{% load static %}
+
+{% block body %}
+  {% for part in parts %}
+  <!-- event section -->
+  <section class="event_section layout_padding">
+    <div class="container">
+      <div class="heading_container">
+        <h3>
+          Part {{ part.part_number }}
+        </h3>
+        <p>
+          {{ part.test.category }}
+        </p>
+      </div>
+      <div class="event_container">
+        <div class="row">
+          <div class="col-12">
+            <div class="box">
+              <div>
+                <div>
+                  {{ part.content }}
+                </div>
+                <img class='img-fluid w-100' src="{{ part.content_img.url }}">
+              </div>
+            </div>
+          </div>
+          {% if part.is_multiple_choice %}
+          <div class="col-12">
+            <div class="row px-4">
+              <div class="col mb-3">
+                <div class="row">
+                    {% csrf_token %}
+                    {% for question in part.get_questions %}
+                    <div class="col-md col-sm-3 col-xs-6">
+                      <div class="row align-items-end">
+                          <label>{{ question.number }}.</label>
+                        <div class="col pl-1">
+                          <select class="custom-select">
+                            <option selected></option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>  
+          {% else %}
+            <div class="col-12">
+              <div class="row px-4">
+                <div class="col mb-3">
+                  <div class="row">
+                      {% csrf_token %}
+                      {% for question in part.get_questions %}
+                      <div class="col-lg-6">
+                        <div class="row align-items-end">
+                            <label class="pl-1">{{ question.number }}.</label>
+                          <div class="col px-2 mb-2">
+                            <input type="text" class="form-control">
+                          </div>
+                        </div>
+                      </div>
+                      {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div> 
+          {% endif %} 
+          <div class="col-12">
+            <nav>
+              <ul class="pagination justify-content-center">
+                {% if parts.has_previous %}
+                  <li class="btn-box">
+                      <a class="page-link" href="?part={{ parts.previous_page_number }}">Previous</a>
+                  </li>
+                {% endif %}
+                <li class="pgn-box">
+                    <a class="page-link">Part {{ parts.number }} of {{ parts.paginator.num_pages }}</a>
+                </li>
+                {% if parts.has_next %}
+                  <li class="btn-box">
+                      <a class="page-link" href="?part={{ parts.next_page_number }}">Next</a>
+                  </li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+    </div>
+  </section>
+  <!-- end event section -->
+  {% endfor %}
+
+{% endblock %}

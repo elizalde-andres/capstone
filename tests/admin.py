@@ -8,6 +8,6 @@ admin.site.register(Question)
 admin.site.register(TestPart)
 admin.site.register(Test)
 admin.site.register(Answer)
-admin.site.register(TestResult)
+admin.site.register(TestAssignment)
 admin.site.register(Category)
 

@@ -99,11 +99,29 @@ def register(request):
         })
 
 
-# def tests_view(request):
-#     return render(request, "tests/tests.html")
-
 def tests_view(request):
-    img = TestPart.objects.get(pk=1).content_img.url
-    return render(request, "tests/uoe_test.html", {
-        "img": img
+    #TODO: add order_by
+    tests = request.user.tests_assignments.all()
+    assigned_tests = tests.filter(finished_date=None)
+    finished_tests = tests.exclude(finished_date=None)
+    return render(request, "tests/tests.html", {
+        "assigned_tests": assigned_tests,
+        "finished_tests": finished_tests
+    })
+
+def test_view(request, id):
+    try:
+        test_parts = Test.objects.get(pk=id).parts.order_by("part_number")
+    except:
+        return render(request, "tests/tests.html", {
+            "message": "Invalid test part"
+        })
+
+    paginator = Paginator(test_parts,1)
+    page_number = request.GET.get('part')
+    parts = paginator.get_page(page_number)
+
+    print(parts)
+    return render(request, "tests/test.html", {
+        "parts": parts
     })
