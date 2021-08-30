@@ -125,3 +125,18 @@ def test_view(request, id):
     return render(request, "tests/test.html", {
         "parts": parts
     })
+    
+
+
+class NewTestForm(forms.Form):
+    title = forms.CharField(max_length=64, widget=forms.TextInput(attrs={'placeholder': 'Title', 'autofocus': 'autofocus'}))
+    categories = [(category.id, category.category) for category in Category.objects.all().order_by("category")]
+    category = forms.ChoiceField(choices=categories, label="Category")
+
+def new_test(request):
+    return render(request, "tests/new_test.html", {
+        "form": NewTestForm()
+    })
+
+def edit_tests(request):
+    pass
