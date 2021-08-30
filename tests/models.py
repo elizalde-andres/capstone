@@ -36,6 +36,8 @@ class TestPart(models.Model):
     content_img = models.ImageField(blank=True, upload_to=get_upload_path)
     is_multiple_choice = BooleanField()
     max_score_per_answer = PositiveSmallIntegerField(default=1)
+    audio = models.FileField(blank=True, null=True, default=None, upload_to=get_upload_path)
+
     
     def __str__(self) -> str:
         return f"{self.test} - Part {self.part_number}"
@@ -46,9 +48,13 @@ class TestPart(models.Model):
 
     
 class Question(models.Model):
+    def get_upload_path(self, filename):
+        return osjoin(str(self.test_part.test.title) + "-" +str(self.test_part.test.id), filename)
+
     test_part = models.ForeignKey(TestPart, on_delete=models.CASCADE, related_name="questions")
     number = IntegerField()
     correct_answers = CharField(max_length=256)
+    audio = models.FileField(blank=True, null=True, default=None, upload_to=get_upload_path)
 
     def __str__(self) -> str:
         return f"{self.test_part} - {self.number}"
