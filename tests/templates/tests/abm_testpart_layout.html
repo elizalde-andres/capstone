@@ -1,27 +1,33 @@
+<form>
 <!-- Start part form -->
-  <div class="container-fluid layout_padding2-top part-form" id="part-form">
+  <div class="container-fluid layout_padding2-top part-form" id="part-form-{{ part_number }}">
     <div class="row">
       <div class="col-md-12 text-left">
         <h3>
-          Part <span id="part-number">{{ part_number }}</span>
+          Part <span id="part-number-{{ part_number }}">{{ part_number }}</span>
+          <input type="hidden" name="parts_count" value="{{ part_number }}">
         </h3>
       </div>
     </div>
     <div class="row">
       <div class="col-md-8">
-          <div class="form-group" id="text-content">
-            {{ part_form.content }}          
+          <div class="form-group">
+              <textarea name="text-content-{{ part_number }}" cols="40" rows="10" class="form-control w-100 rounded p-2" id="text-content-{{ part_number }}"></textarea>
           </div>
       </div>
       <div class="col-md-4">
           <div class="form-group">
-              <div class="col-1 p-0" id="is-multiple-choice">{{ part_form.is_multiple_choice }}</div>
+              <div class="col-1 p-0">
+                <input type="checkbox" name="is-multiple-choice-{{ part_number }}" id="is-multiple-choice-{{ part_number }}">
+              </div>
               <div class="col-11 p-0 text-left">Multiple choice </div>
           </div>
           <div class="form-group">
             <div class="row">
               <div class="col"><span style="white-space: nowrap;">Max score per answer</span></div>
-              <div class="col" id="max-score-per-answer">{{ part_form.max_score_per_answer }}</div>
+              <div class="col">
+                <input type="number" name="max-score-per-answer-{{ part_number }}" value="1" class="form-control" min="1" required="" id="max-score-per-answer-{{ part_number }}">
+              </div>
             </div>
           </div>
           <div class="form-group">
@@ -31,7 +37,9 @@
                   Image
                 </label>
               </div>
-              <div class="col pl-0" id="img-content">{{ part_form.content_img }}</div>
+              <div class="col pl-0">
+                <input type="file" name="img-content-{{ part_number }}" class="form-control-file mb-0 pl-0 form-control-sm" accept="image/*" id="img-content-{{ part_number }}">
+              </div>
             </div>
           </div>
           
@@ -43,7 +51,9 @@
                   Audio
                 </label>
               </div>
-              <div class="col pl-0" id="part-audio">{{ part_form.audio }}</div>
+              <div class="col pl-0">
+                <input type="file" name="part-audio-{{ part_number }}" class="form-control-file mb-0 pl-0 form-control-sm" id="part-audio-{{ part_number }}">
+              </div>
             </div>
           </div>
           {% endif %}
@@ -51,14 +61,15 @@
     </div>
 
       <!-- Fill in js with questions -->
-      <div id="question-forms"></div>
+      <div id="question-forms-{{ part_number }}"></div>
 
     <div class="row">
       <div class="col-md-12 text-left">
-        <button type="button" class="btn btn-success">
+        <button type="button" class="btn btn-success" id="add-part-btn-{{ part_number }}">
           Add part
         </button>
       </div>
     </div>
   </div>
   <!-- End part form -->
+</form>

@@ -128,23 +128,76 @@ def test_view(request, id):
     
 class NewTestForm(forms.Form):
     title = forms.CharField(max_length=64, widget=forms.TextInput(attrs={'placeholder': 'Title', 'autofocus': 'autofocus'}))
-    categories = [(category.id, category.category) for category in Category.objects.all().order_by("category")]
+    categories = [(0, "")]
+    categories += [(category.id, category.category) for category in Category.objects.all().order_by("category")]
     category = forms.ChoiceField(choices=categories, label="Category", widget=forms.Select(attrs = { 'class': 'form-control'}))
 
-class NewTestPartForm(forms.Form):
-    content = forms.CharField(widget=forms.Textarea(attrs = {'class': 'form-control w-100 rounded p-2'}))
-    is_multiple_choice = forms.BooleanField()
-    max_score_per_answer = forms.IntegerField(initial=1, min_value=1, widget=forms.NumberInput(attrs = {'class': 'form-control'}))
-    content_img = forms.ImageField(widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
-    audio = forms.FileField(widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
+# class NewTestPartForm(forms.Form):
+#     content = forms.CharField(required=False, widget=forms.Textarea(attrs = {'class': 'form-control w-100 rounded p-2'}))
+#     is_multiple_choice = forms.BooleanField(required=False)
+#     max_score_per_answer = forms.IntegerField(initial=1, min_value=1, widget=forms.NumberInput(attrs = {'class': 'form-control'}))
+#     content_img = forms.ImageField(required=False, widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
+#     audio = forms.FileField(required=False, widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
 
-class NewQuestionForm(forms.Form):
-    number = forms.IntegerField(min_value=1, widget=forms.NumberInput(attrs = {'class': 'form-control'}))
-    correct_answers = forms.CharField(widget=forms.TextInput(attrs = {'class': 'form-control', 'placeholder': 'Correct answer 1; Correct answer2; ...'}))
-    audio = forms.FileField(widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
+# class NewQuestionForm(forms.Form):
+#     correct_answers = forms.CharField(widget=forms.TextInput(attrs = {'class': 'form-control', 'placeholder': 'Correct answer 1; Correct answer2; ...'}))
+#     audio = forms.FileField(required=False, widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
 
 def new_test(request):
-    return render(request, "tests/new_test.html")
+    if request.method == "POST":
+        if request.user.is_authenticated and request.user.is_teacher:
+            test_form = NewTestForm(request.POST)
+            if test_form.is_valid():
+                try:
+                    title = request.POST["title"]
+                    category_id = request.POST["category"]
+                    test = Test(title=title, category=Category.objects.get(pk=category_id))
+                    test.save()
+
+                    parts_count = int(request.POST["parts_count"])
+                    last_question_part = 0
+                    for i in range(parts_count):
+                        part_number = i+1
+                        questions_count = int(request.POST[f"questions-count-{part_number}"]) - last_question_part
+
+                        text_content = request.POST[f"text-content-{part_number}"]
+                        max_score_per_answer = request.POST[f"max-score-per-answer-{part_number}"]
+                        try:
+                            content_img = request.POST[f"img-content-{part_number}"]
+                        except:
+                            content_img = None
+                        try:
+                            is_multiple_choice = request.POST[f"is-multiple-choice-{part_number}"]
+                            is_multiple_choice = True if is_multiple_choice == 'on' else False
+                        except:
+                            is_multiple_choice = False
+                        try:
+                            audio = request.POST[f"part-audio-{part_number}"]
+                        except:
+                            audio = None
+
+                        part = TestPart(test=test, part_number=part_number, content=text_content, content_img=content_img, is_multiple_choice=is_multiple_choice, max_score_per_answer=max_score_per_answer, audio=audio)
+                        part.save()
+
+                        for j in range(questions_count):
+                            question_number = last_question_part + 1
+                            correct_answers = request.POST[f"correct-answers-{part_number}-{question_number}"]
+                            try:
+                                audio = request.POST[f"question-audio-{part_number}-{question_number}"]
+                            except:
+                                audio = None
+                            
+                            question = Question(test_part=TestPart.objects.get(pk=part.pk), number=question_number, correct_answers=correct_answers)
+                            question.save()
+                            last_question_part += 1
+
+                    return render(request, "tests/new_test.html")
+                except:
+                    return render(request, "tests/new_test.html", {
+                        "message": "Error saving test"
+                    })
+    else:
+        return render(request, "tests/new_test.html")
 
 def abm_test_layout(request):
     # if request.GET.get('id'):
@@ -168,7 +221,6 @@ def abm_test_layout(request):
     #             } for part in test.parts],
     #         },
     #     })
-    category =request.GET.get('category')
     return render(request, "tests/abm_test_layout.html", {
         "test_form": NewTestForm()
     })
@@ -178,7 +230,6 @@ def abm_testpart_layout(request):
     category =request.GET.get('category')
     
     return render(request, "tests/abm_testpart_layout.html", {
-        "part_form": NewTestPartForm(),
         "category": category,
         "part_number": request.GET.get('part_number')
     })
@@ -186,7 +237,7 @@ def abm_testpart_layout(request):
 def abm_question_layout(request):
     category = request.GET.get('category')
     return render(request, "tests/abm_question_layout.html", {
-        "question_form": NewQuestionForm(initial={'number': request.GET.get('question_number')}),
         "category": category,
-        "question_number": request.GET.get('question_number')
+        "question_number": request.GET.get('question_number'),
+        "part_number": request.GET.get('part_number')
     })
