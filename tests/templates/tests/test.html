@@ -2,6 +2,79 @@
 {% load static %}
 
 {% block body %}
+
+  {% if user.is_teacher %}
+    <div class="event_section">
+      <div class="container">
+        <div class="event_container">
+          <div class="box">
+            <div class="img-box">
+              <h3>
+                <span>{{ test.title }}</span>
+              </h3>
+              <h6>
+                {{ test.category }}
+              </h6>
+            </div>
+            <div class="detail-box">
+              <div class="row">
+                <div class=col>
+                  <form class="form-inline" action="{% url 'assign' test.id %}" method="post">
+                    {% csrf_token %}
+                    Assign to:&nbsp; 
+                    <select name="assign" class="form-control" id="assign">
+                      <option value="0"></option>
+                      {% for user in assignable %}
+                          <option value="{{ user.id }}">{{ user.last_name }} {{ user.first_name }}</option>  
+                      {% endfor %}
+                    </select>
+                    <button type="submit" class="btn">
+                      <div class="btn-box"><a class="page-link mt-0">Assign</a></div>
+                    </button>
+                  </form>
+                </div>
+              </div>
+              <div class="row">
+                <div class=col>
+                  <form class="form-inline" action="{% url 'unassign' test.id %}" method="post">
+                    {% csrf_token %}
+                    Remove:&nbsp; 
+                    <select name="remove" class="form-control" id="remove">
+                      <option value="0"></option>
+                      {% for user in assigned %}
+                          <option value="{{ user.id }}">{{ user.last_name }} {{ user.first_name }}</option>  
+                      {% endfor %}
+                    </select>
+                    <button type="submit" class="btn">
+                      <div class="btn-box"><a class="page-link mt-0">Remove</a></div>
+                    </button>
+                  </form>
+                </div>
+              </div>
+              {% if messages %}
+              <div class="row">
+                <div class="col">
+                    {% for message in messages %}
+                    <i class="fa fa-check" aria-hidden="true"></i> {{ message }}
+                    {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+            </div>
+            <div class="date-box">
+              <h3>
+                <span>
+                  {{ test.timestamp.day }}
+                </span>
+                {{ test.timestamp|date:"F" }}
+              </h3>
+              <h4>{{ test.timestamp.year }}</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
   {% for part in parts %}
   <!-- event section -->
   <section class="event_section layout_padding">
@@ -19,10 +92,12 @@
           <div class="col-12">
             <div class="box">
               <div>
-                <div>
-                  {{ part.content }}
+                <div class="text-left">
+                  {{ part.content|linebreaksbr }}
                 </div>
-                <img class='img-fluid w-100' src="{{ part.content_img.url }}">
+                {% if part.content_img %}
+                  <img class='img-fluid w-100' src="{{ part.content_img.url }}">
+                {% endif %}
               </div>
             </div>
           </div>

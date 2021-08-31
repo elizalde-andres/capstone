@@ -1,7 +1,9 @@
 import json
+import datetime
 
 from django import forms
 
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core import paginator
@@ -100,18 +102,31 @@ def register(request):
 
 
 def tests_view(request):
-    #TODO: add order_by
-    tests = request.user.tests_assignments.all()
-    assigned_tests = tests.filter(finished_date=None)
-    finished_tests = tests.exclude(finished_date=None)
-    return render(request, "tests/tests.html", {
-        "assigned_tests": assigned_tests,
-        "finished_tests": finished_tests
-    })
+    if request.user.is_authenticated:
+        if request.user.is_teacher:
+            tests = Test.objects.all().order_by("-timestamp")
+            return render(request, "tests/tests.html", {
+                "tests": tests
+            })
+        else:
+            #TODO: add order_by
+            tests = request.user.tests_assignments.all()
+            assigned_tests = tests.filter(finished_date=None)
+            finished_tests = tests.exclude(finished_date=None)
+            return render(request, "tests/tests.html", {
+                "assigned_tests": assigned_tests,
+                "finished_tests": finished_tests
+            })
 
 def test_view(request, id):
     try:
-        test_parts = Test.objects.get(pk=id).parts.order_by("part_number")
+        test = Test.objects.get(pk=id)
+        test_parts = test.parts.order_by("part_number")
+
+        assignments = TestAssignment.objects.all()
+        assigned = [assignment.user for assignment in assignments.filter(test=test)]
+        assigned_ids = [user.id for user in assigned]
+        assignable = User.objects.exclude(pk__in=assigned_ids)
     except:
         return render(request, "tests/tests.html", {
             "message": "Invalid test part"
@@ -121,9 +136,11 @@ def test_view(request, id):
     page_number = request.GET.get('part')
     parts = paginator.get_page(page_number)
 
-    print(parts)
     return render(request, "tests/test.html", {
-        "parts": parts
+        "test": test,
+        "parts": parts,
+        "assigned": assigned,
+        "assignable": assignable
     })
     
 class NewTestForm(forms.Form):
@@ -131,17 +148,6 @@ class NewTestForm(forms.Form):
     categories = [(0, "")]
     categories += [(category.id, category.category) for category in Category.objects.all().order_by("category")]
     category = forms.ChoiceField(choices=categories, label="Category", widget=forms.Select(attrs = { 'class': 'form-control'}))
-
-# class NewTestPartForm(forms.Form):
-#     content = forms.CharField(required=False, widget=forms.Textarea(attrs = {'class': 'form-control w-100 rounded p-2'}))
-#     is_multiple_choice = forms.BooleanField(required=False)
-#     max_score_per_answer = forms.IntegerField(initial=1, min_value=1, widget=forms.NumberInput(attrs = {'class': 'form-control'}))
-#     content_img = forms.ImageField(required=False, widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
-#     audio = forms.FileField(required=False, widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
-
-# class NewQuestionForm(forms.Form):
-#     correct_answers = forms.CharField(widget=forms.TextInput(attrs = {'class': 'form-control', 'placeholder': 'Correct answer 1; Correct answer2; ...'}))
-#     audio = forms.FileField(required=False, widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
 
 def new_test(request):
     if request.method == "POST":
@@ -241,3 +247,33 @@ def abm_question_layout(request):
         "question_number": request.GET.get('question_number'),
         "part_number": request.GET.get('part_number')
     })
+
+def assign(request, id):
+    if request.user.is_authenticated and request.user.is_teacher:
+        if request.method == "POST":
+            try:
+                user = User.objects.get(pk=int(request.POST["assign"]))
+                test = Test.objects.get(pk=id)
+                assigned_date = datetime.date.today()
+                assignment = TestAssignment(user=user, test=test, assigned_date=assigned_date)
+                assignment.save()
+                messages.success(request, f'Test successfully assigned to {user.first_name} {user.last_name}')
+                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
+            except:
+                return HttpResponseRedirect(reverse("index"))
+
+def unassign(request, id):
+    if request.user.is_authenticated and request.user.is_teacher:
+        if request.method == "POST":
+            try:
+                user = User.objects.get(pk=int(request.POST["remove"]))
+                test = Test.objects.get(pk=id)
+                # TODO: sacar los que ya finalizaron la tarea
+            
+                assignment = user.tests_assignments.get(test=test)
+                assignment.delete()
+                
+                messages.success(request, f'Test successfully removed from {user.first_name} {user.last_name}.')
+                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
+            except:
+                return HttpResponseRedirect(reverse("index"))

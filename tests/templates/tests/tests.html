@@ -2,83 +2,41 @@
 {% load static %}
 
 {% block body %}
-  <!-- event section -->
+{% if user.is_teacher %}
+  <!-- student test section -->
   <section class="event_section layout_padding">
     <div class="container">
       <div class="heading_container">
         <h3>
-          Assigned tests
+          Tests
         </h3>
-        <p>
-          Here are your next assignments.
-        </p>
       </div>
       <div class="event_container">
-        {% for assignment in assigned_tests %}
+        {% for test in tests %}
           <div class="box">
             <div class="img-box">
-              <a href="{% url 'test' assignment.test.id %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
+              {% if test.category.category == "Reading and Use of English" %}
+                <a href="{% url 'test' test.id %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
+              {% else %}
+                <a href="{% url 'test' test.id %}"><img src="{% static 'tests/images/listening_test.jpg' %}" alt="Listening" /></a>
+              {% endif %}
             </div>
             <div class="detail-box">
               <h4>
-                <a href="{% url 'test' assignment.test.id %}">{{ assignment.test.title }}</a>
+                <a href="{% url 'test' test.id %}">{{ test.title }}</a>
               </h4>
               <h6>
-                {{ assignment.test.category }}
+                {{ test.category }}
               </h6>
             </div>
             <div class="date-box">
               <h3>
                 <span>
-                  {{ assignment.assigned_date.day }}
+                  {{ test.timestamp.day }} 
                 </span>
-                {{ assignment.assigned_date|date:"F" }}
+                  {{ test.timestamp|date:"F" }}
               </h3>
-            </div>
-          </div>
-          {% endfor %}
-      </div>
-
-      <div class="heading_container layout_padding2-top">
-        <h3>
-          Finished tests
-        </h3>
-        <p>
-          Resulst for the tests you have taken.
-        </p>
-      </div>
-      <div class="event_container">
-        {% for assignment in finished_tests %}
-          <div class="box">
-            <div class="img-box">
-              <a href="{% url 'test' assignment.test.id %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
-            </div>
-            <div class="detail-box">
-              <h4>
-                <a href="{% url 'test' assignment.test.id %}">{{ assignment.test.title }}</a>
-              </h4>
-              <h6>
-                {{ assignment.test.category }}
-              </h6>
-            </div>
-            <div class="date-box">
-              <h4>
-                <span>
-                  {{ assignment.assigned_date.day }}
-                </span>
-                {{ assignment.assigned_date|date:"F" }}
-              </h4>
-              <h6>
-                <span>
-                  Finished
-                </span>
-                {{ assignment.finished_date.day }} {{ assignment.finished_date|date:"F" }}
-              </h6>
-              <h3>
-                <span>
-                  {{ assignment.score_percent }}%
-                </span>
-              </h3>
+              <h4>{{ test.timestamp.year }}</h4>
             </div>
           </div>
           {% endfor %}
@@ -86,6 +44,92 @@
     </div>
   </section>
 
-  <!-- end event section -->
+  <!-- end student test section -->
+{% else %}
+<!-- student test section -->
+<section class="event_section layout_padding">
+  <div class="container">
+    <div class="heading_container">
+      <h3>
+        Assigned tests
+      </h3>
+      <p>
+        Here are your next assignments.
+      </p>
+    </div>
+    <div class="event_container">
+      {% for assignment in assigned_tests %}
+        <div class="box">
+          <div class="img-box">
+            <a href="{% url 'test' assignment.test.id %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
+          </div>
+          <div class="detail-box">
+            <h4>
+              <a href="{% url 'test' assignment.test.id %}">{{ assignment.test.title }}</a>
+            </h4>
+            <h6>
+              {{ assignment.test.category }}
+            </h6>
+          </div>
+          <div class="date-box">
+            <h3>
+              <span>
+                {{ assignment.assigned_date.day }}
+              </span>
+              {{ assignment.assigned_date|date:"F" }}
+            </h3>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
 
+    <div class="heading_container layout_padding2-top">
+      <h3>
+        Finished tests
+      </h3>
+      <p>
+        Resulst for the tests you have taken.
+      </p>
+    </div>
+    <div class="event_container">
+      {% for assignment in finished_tests %}
+        <div class="box">
+          <div class="img-box">
+            <a href="{% url 'test' assignment.test.id %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
+          </div>
+          <div class="detail-box">
+            <h4>
+              <a href="{% url 'test' assignment.test.id %}">{{ assignment.test.title }}</a>
+            </h4>
+            <h6>
+              {{ assignment.test.category }}
+            </h6>
+          </div>
+          <div class="date-box">
+            <h4>
+              <span>
+                {{ assignment.assigned_date.day }}
+              </span>
+              {{ assignment.assigned_date|date:"F" }}
+            </h4>
+            <h6>
+              <span>
+                Finished
+              </span>
+              {{ assignment.finished_date.day }} {{ assignment.finished_date|date:"F" }}
+            </h6>
+            <h3>
+              <span>
+                {{ assignment.score_percent }}%
+              </span>
+            </h3>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- end student test section -->
+{% endif %}
 {% endblock %}
