@@ -1,0 +1,48 @@
+  <!-- Add question form -->
+  <div class="row" id="question-form-{{ question_form.number.value }}">
+    <div class="col-md-12">
+        <div class="row">
+          <div class="col-md-2">
+            <div class="form-group">
+              <div class="row">
+                <div class="col-auto">
+                  <label for="exampleInputEmail1">
+                    Nº
+                  </label>
+                </div>
+                <div class="col" id="question-number">{{ question_form.number }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group" id="correct-answers">
+              {{ question_form.correct_answers}}
+            </div>
+          </div>
+          <div class="col-md-1 text-left" >
+            <button type="button" class="btn btn-success m-0 px-2 py-0" id='add-question-{{ question_form.number.value }}' >
+              +
+            </button>
+            <button type="button" class="btn btn-danger m-0 px-2 py-0" id='delete-question-{{ question_form.number.value }}'>
+              -
+            </button>
+          </div>
+          <div class="col-md-3">
+            
+            {% if category == "Listening" %}
+            <div class="form-group">
+              <div class="row">
+                <div class="col-auto">
+                  <label for="exampleInputFile">
+                    <i class="fa fa-solid fa-microphone"></i>
+                  </label>
+                </div>
+                <div class="col pl-0" id="question-audio">{{ question_form.audio}}</div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+    </div>
+  </div>
+  <!-- End add question form -->

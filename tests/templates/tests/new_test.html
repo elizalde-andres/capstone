@@ -1,147 +1,19 @@
 {% extends "tests/layout.html" %}
 {% load static %}
 
+{% block script %}
+    {{ request.user.id|json_script:"user_id" }}
+    <script src="{% static 'tests/js/test.js' %}"></script>
+{% endblock %}
+
 {% block body %}
   {% if message %}
   <div class="col-md-12 alert-danger">
       {{ message }} 
   </div>
   {% endif %}
-  <section class="login_section layout_padding">
-    <div class="container">
-      <div class="row">
-        <div class="col-md">
-          <div class="login_form">
-            <h5>
-              Create new test
-            </h5>
-            <form class="form-inline" action="{% url 'register' %}" method="post">
-              {% csrf_token %}
 
-              <div class="form-group col-md-8">
-                {{ form.title }}
-              </div>
-              <div class="form-group col-md-4">
-                {{ form.category.label }} &nbsp; {{ form.category }}
-              </div>
+  <div id="new-test-view">
+  </div>
 
-              <!-- Start adding UoE part form -->
-              <div class="container-fluid layout_padding2-top">
-                <div class="row">
-                  <div class="col-md-12 text-left">
-                    <h3>
-                      Part 1
-                    </h3>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-8">
-                      <div class="form-group">
-                        <textarea class="w-100 rounded" rows=9 placeholder="Content"></textarea>
-                      </div>
-                  </div>
-                  <div class="col-md-4">
-                      <div class="checkbox">
-                        <label style="white-space: nowrap;">
-                          Multiple choice<input type="checkbox" />
-                        </label>
-                      </div>
-                      <div class="form-group">
-                        <div class="row">
-                          <div class="col"><span style="white-space: nowrap;">Max score per answer</span></div>
-                          <div class="col"><input type="number" class="form-control" id="max-score-per-answer"></div>
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <div class="row">
-                          <div class="col-auto">
-                            <label for="exampleInputFile">
-                              Image
-                            </label>
-                          </div>
-                          <div class="col pl-0"><input type="file" class="form-control-file mb-0 pl-0 form-control-sm" id="part-img" /></div>
-                        </div>
-                      </div>
-                      <!-- TODO:add if category == Listening -->
-                      <div class="form-group">
-                        <div class="row">
-                          <div class="col-auto">
-                            <label for="exampleInputFile">
-                              Audio
-                            </label>
-                          </div>
-                          <div class="col pl-0"><input type="file" class="form-control-file mb-0 pl-0 form-control-sm" id="part-audio" /></div>
-                        </div>
-                      </div>
-                  </div>
-                </div>
-
-                  <!-- Add question form -->
-                  <div class="row">
-                    <div class="col-md-12">
-                        <div class="row">
-                          <div class="col-md-2">
-                            <div class="form-group">
-                              <div class="row">
-                                <div class="col-auto">
-                                  <label for="exampleInputEmail1">
-                                    Nº
-                                  </label>
-                                </div>
-                                <div class="col"><input type="number" class="form-control" id="exampleInputEmail1" /></div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="form-group">
-                              <input type="text" class="form-control" id="exampleInputPassword1" placeholder="Correct answer 1; Correct answer2; ..." />
-                            </div>
-                          </div>
-                          <div class="col-md-1 text-left" >
-                            <button type="button" class="btn btn-success m-0 px-2 py-0">
-                              +
-                            </button>
-                            <button type="button" class="btn btn-danger m-0 px-2 py-0">
-                              -
-                            </button>
-                          </div>
-                          <div class="col-md-3">
-                            <!-- TODO:add if category == Listening -->
-                            <div class="form-group">
-                              <div class="row">
-                                <div class="col-auto">
-                                  <label for="exampleInputFile">
-                                    <i class="fa fa-solid fa-microphone"></i>
-                                  </label>
-                                </div>
-                                <div class="col pl-0"><input type="file" class="form-control-file mb-0 pl-0 form-control-sm" id="part-audio" /></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                    </div>
-                  </div>
-                  <!-- End add question form -->
-
-                <div class="row">
-                  <div class="col-md-12 text-left">
-                    <button type="button" class="btn btn-success">
-                      Add part
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <!-- End add part UoE form -->
-
-                <div class="col-md-12">
-                  <button type="submit" class="btn">
-                    Create
-                  </button>
-                </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 {% endblock %}

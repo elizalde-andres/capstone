@@ -126,17 +126,67 @@ def test_view(request, id):
         "parts": parts
     })
     
-
-
 class NewTestForm(forms.Form):
     title = forms.CharField(max_length=64, widget=forms.TextInput(attrs={'placeholder': 'Title', 'autofocus': 'autofocus'}))
     categories = [(category.id, category.category) for category in Category.objects.all().order_by("category")]
-    category = forms.ChoiceField(choices=categories, label="Category")
+    category = forms.ChoiceField(choices=categories, label="Category", widget=forms.Select(attrs = { 'class': 'form-control'}))
+
+class NewTestPartForm(forms.Form):
+    content = forms.CharField(widget=forms.Textarea(attrs = {'class': 'form-control w-100 rounded p-2'}))
+    is_multiple_choice = forms.BooleanField()
+    max_score_per_answer = forms.IntegerField(initial=1, min_value=1, widget=forms.NumberInput(attrs = {'class': 'form-control'}))
+    content_img = forms.ImageField(widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
+    audio = forms.FileField(widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
+
+class NewQuestionForm(forms.Form):
+    number = forms.IntegerField(min_value=1, widget=forms.NumberInput(attrs = {'class': 'form-control'}))
+    correct_answers = forms.CharField(widget=forms.TextInput(attrs = {'class': 'form-control', 'placeholder': 'Correct answer 1; Correct answer2; ...'}))
+    audio = forms.FileField(widget=forms.FileInput(attrs = { 'class': 'form-control-file mb-0 pl-0 form-control-sm'}))
 
 def new_test(request):
-    return render(request, "tests/new_test.html", {
-        "form": NewTestForm()
+    return render(request, "tests/new_test.html")
+
+def abm_test_layout(request):
+    # if request.GET.get('id'):
+    #     test = Test.objects.filter(pk=id)
+    #     # TODO: crear y rellenar los formularios, enviar todo
+    #     return render(request, "tests/abm_test.html", {
+    #         "form": {
+    #             "title": test.title,
+    #             "category": test.category,
+    #             "parts": [ {
+    #                 "number": part.part_number,
+    #                 "text-content": part.content,
+    #                 "is_multiple_choice": part.is_multiple_choice,
+    #                 "max_score_per_answer": part.max_score_per_answer,
+    #                 "part_audio": part.audio if test.category.category == 'Listening' else None,
+    #                 "questions": [{
+    #                     "number": question.number,
+    #                     "correct_answers": question.correct_answers,
+    #                     "audio": question.audio if test.category.category == 'Listening' else None,
+    #                 } for question in part.questions] 
+    #             } for part in test.parts],
+    #         },
+    #     })
+    category =request.GET.get('category')
+    return render(request, "tests/abm_test_layout.html", {
+        "test_form": NewTestForm()
     })
 
-def edit_tests(request):
-    pass
+def abm_testpart_layout(request):
+    
+    category =request.GET.get('category')
+    
+    return render(request, "tests/abm_testpart_layout.html", {
+        "part_form": NewTestPartForm(),
+        "category": category,
+        "part_number": request.GET.get('part_number')
+    })
+
+def abm_question_layout(request):
+    category = request.GET.get('category')
+    return render(request, "tests/abm_question_layout.html", {
+        "question_form": NewQuestionForm(initial={'number': request.GET.get('question_number')}),
+        "category": category,
+        "question_number": request.GET.get('question_number')
+    })
