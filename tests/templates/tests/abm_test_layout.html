@@ -3,13 +3,13 @@
       <div class="row">
         <div class="col-md">
           <div class="login_form">
-            <h5>
+            <h5 id="form-title">
               Create new test
             </h5>
-            <form class="form-inline" action="{% url 'new_test' %}" method="post">
+            <form class="form-inline" action="{% url 'new_test' %}" method="post" id="main-form">
               {% csrf_token %}
 
-              <div class="form-group col-md-8">
+              <div class="form-group col-md-8" id="test-form-title">
                 {{ test_form.title }}
               </div>
               <div class="form-group col-md-4" id="test-category">
@@ -21,7 +21,7 @@
               </div>
 
                 <div class="col-md-12">
-                  <button type="submit" class="btn">
+                  <button type="submit" class="btn" id="confirm-button">
                     Create
                   </button>
                 </div>

@@ -26,6 +26,11 @@
                 <a href="{% url 'test' test.id %}">{{ test.title }}</a>
               </h4>
               <h6>
+                {% if test.category.category == "Listening" %}
+                      <i class="fas fa-headphones-alt"></i>
+                {% else %}
+                      <i class="fa fas fa-glasses"></i>
+                {% endif %}
                 {{ test.category }}
               </h6>
             </div>
@@ -68,6 +73,11 @@
               <a href="{% url 'test' assignment.test.id %}">{{ assignment.test.title }}</a>
             </h4>
             <h6>
+              {% if assignment.test.category.category == "Listening" %}
+                    <i class="fas fa-headphones-alt"></i>
+              {% else %}
+                    <i class="fa fas fa-glasses"></i>
+              {% endif %}
               {{ assignment.test.category }}
             </h6>
           </div>

@@ -1,6 +1,10 @@
 {% extends "tests/layout.html" %}
 {% load static %}
 
+{% block script %}
+    <script src="{% static 'tests/js/test.js' %}"></script>
+{% endblock %}
+
 {% block body %}
 
   {% if user.is_teacher %}
@@ -10,11 +14,19 @@
           <div class="box">
             <div class="img-box">
               <h3>
-                <span>{{ test.title }}</span>
+                <strong>{{ test.title }}</strong>
               </h3>
               <h6>
+                {% if test.category.category == "Listening" %}
+                <i class="fas fa-headphones-alt"></i>
+                {% else %}
+                <i class="fa fas fa-glasses"></i>
+                {% endif %}
                 {{ test.category }}
               </h6>
+                <button type="button" class="btn" value="{{ test.id }}" id="edit-btn">
+                  <div class="btn-box"><a class="page-link mt-0"><i class="far fa-edit"></i> Edit this test</a></div>
+                </button>
             </div>
             <div class="detail-box">
               <div class="row">
@@ -69,21 +81,31 @@
                 {{ test.timestamp|date:"F" }}
               </h3>
               <h4>{{ test.timestamp.year }}</h4>
+              <button type="button" class="btn" value="{{ test.id }}" id="results-btn">
+                <div class="btn-box"><a class="page-link mt-0">See results</a></div>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <div id="edit-test-view">
+    </div>
   {% endif %}
   {% for part in parts %}
   <!-- event section -->
-  <section class="event_section layout_padding">
+  <section class="event_section layout_padding" id="view-test-section">
     <div class="container">
       <div class="heading_container">
         <h3>
           Part {{ part.part_number }}
         </h3>
         <p>
+          {% if part.test.category.category == "Listening" %}
+                <i class="fas fa-headphones-alt"></i>
+          {% else %}
+                <i class="fa fas fa-glasses"></i>
+          {% endif %}
           {{ part.test.category }}
         </p>
       </div>

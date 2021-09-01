@@ -22,6 +22,13 @@ class Test(models.Model):
     title = CharField(max_length=64)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="tests")
 
+    def serialize(self):
+        return {
+            "title": self.title,
+            "category_id": self.category.id,
+            "category_name": self.category.category
+        }
+
     def __str__(self) -> str:
         return self.title
 
@@ -33,12 +40,21 @@ class TestPart(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="parts")
     part_number = PositiveSmallIntegerField()
     content = TextField(blank=True)
-    content_img = models.ImageField(blank=True, upload_to=get_upload_path)
+    content_img = models.ImageField(blank=True, null=True, default=None, upload_to=get_upload_path)
     is_multiple_choice = BooleanField()
     max_score_per_answer = PositiveSmallIntegerField(default=1)
     audio = models.FileField(blank=True, null=True, default=None, upload_to=get_upload_path)
 
-    
+    def serialize(self):
+        return {
+            "part_number": self.part_number,
+            "content": self.content,
+            "content_img": self.content_img.url if self.content_img else "",
+            "is_multiple_choice": self.is_multiple_choice,
+            "max_score_per_answer": self.max_score_per_answer,
+            "audio": self.audio.url if self.audio else ""
+        }
+
     def __str__(self) -> str:
         return f"{self.test} - Part {self.part_number}"
 
@@ -55,6 +71,13 @@ class Question(models.Model):
     number = IntegerField()
     correct_answers = CharField(max_length=256)
     audio = models.FileField(blank=True, null=True, default=None, upload_to=get_upload_path)
+
+    def serialize(self):
+        return {
+            "question_number": self.number,
+            "correct_answers": self.correct_answers,
+            "audio": self.audio.url if self.audio else ""
+        }
 
     def __str__(self) -> str:
         return f"{self.test_part} - {self.number}"

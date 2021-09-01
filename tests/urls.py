@@ -14,7 +14,12 @@ urlpatterns = [
     path("assign/<int:id>", views.assign, name="assign"),
     path("unassign/<int:id>", views.unassign, name="unassign"),
     path("new_test/", views.new_test, name="new_test"),
+    path("edit_test/<int:id>", views.edit_test, name="edit_test"),
     path("abm_test_layout/", views.abm_test_layout, name="abm_test_layout"),
     path("abm_testpart_layout/", views.abm_testpart_layout, name="abm_testpart_layout"),
     path("abm_question_layout/", views.abm_question_layout, name="abm_question_layout"),
+
+    # API
+    path("get_test/", views.get_test, name="get_test"),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

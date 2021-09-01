@@ -125,8 +125,8 @@ def test_view(request, id):
 
         assignments = TestAssignment.objects.all()
         assigned = [assignment.user for assignment in assignments.filter(test=test)]
-        assigned_ids = [user.id for user in assigned]
-        assignable = User.objects.exclude(pk__in=assigned_ids)
+
+        assignable = User.objects.exclude(pk__in=[user.id for user in assigned])
     except:
         return render(request, "tests/tests.html", {
             "message": "Invalid test part"
@@ -205,28 +205,81 @@ def new_test(request):
     else:
         return render(request, "tests/new_test.html")
 
+
+def edit_test(request, id):
+    # TODO: add editing test with put
+    if request.method == "PUT":
+        if request.user.is_authenticated and request.user.is_teacher:
+            test_form = NewTestForm(request.POST)
+            if test_form.is_valid():
+                try:
+                    title = request.POST["title"]
+                    category_id = request.POST["category"]
+                    test = Test(title=title, category=Category.objects.get(pk=category_id))
+                    test.save()
+
+                    parts_count = int(request.POST["parts_count"])
+                    last_question_part = 0
+                    for i in range(parts_count):
+                        part_number = i+1
+                        questions_count = int(request.POST[f"questions-count-{part_number}"]) - last_question_part
+
+                        text_content = request.POST[f"text-content-{part_number}"]
+                        max_score_per_answer = request.POST[f"max-score-per-answer-{part_number}"]
+                        try:
+                            content_img = request.POST[f"img-content-{part_number}"]
+                        except:
+                            content_img = None
+                        try:
+                            is_multiple_choice = request.POST[f"is-multiple-choice-{part_number}"]
+                            is_multiple_choice = True if is_multiple_choice == 'on' else False
+                        except:
+                            is_multiple_choice = False
+                        try:
+                            audio = request.POST[f"part-audio-{part_number}"]
+                        except:
+                            audio = None
+
+                        part = TestPart(test=test, part_number=part_number, content=text_content, content_img=content_img, is_multiple_choice=is_multiple_choice, max_score_per_answer=max_score_per_answer, audio=audio)
+                        part.save()
+
+                        for j in range(questions_count):
+                            question_number = last_question_part + 1
+                            correct_answers = request.POST[f"correct-answers-{part_number}-{question_number}"]
+                            try:
+                                audio = request.POST[f"question-audio-{part_number}-{question_number}"]
+                            except:
+                                audio = None
+                            
+                            question = Question(test_part=TestPart.objects.get(pk=part.pk), number=question_number, correct_answers=correct_answers)
+                            question.save()
+                            last_question_part += 1
+
+                    return render(request, "tests/new_test.html")
+                except:
+                    return render(request, "tests/new_test.html", {
+                        "message": "Error saving test"
+                    })
+    else:
+        return render(request, "tests/new_test.html")
+
+
+def get_test(request):
+    try: 
+        id = request.GET.get('id')
+        test = Test.objects.get(pk=id)
+        test_dict = test.serialize()
+        
+        test_dict["parts"] = [ part.serialize() for part in test.parts.all()]
+        
+        for part in test_dict["parts"]:
+            part["questions"] = [question.serialize() for question in test.parts.get(part_number=part["part_number"]).questions.all()]
+        
+        return JsonResponse(test_dict, safe=False)
+    except:
+        return JsonResponse({"error": "Invalid test id."}, status=400)
+
 def abm_test_layout(request):
-    # if request.GET.get('id'):
-    #     test = Test.objects.filter(pk=id)
-    #     # TODO: crear y rellenar los formularios, enviar todo
-    #     return render(request, "tests/abm_test.html", {
-    #         "form": {
-    #             "title": test.title,
-    #             "category": test.category,
-    #             "parts": [ {
-    #                 "number": part.part_number,
-    #                 "text-content": part.content,
-    #                 "is_multiple_choice": part.is_multiple_choice,
-    #                 "max_score_per_answer": part.max_score_per_answer,
-    #                 "part_audio": part.audio if test.category.category == 'Listening' else None,
-    #                 "questions": [{
-    #                     "number": question.number,
-    #                     "correct_answers": question.correct_answers,
-    #                     "audio": question.audio if test.category.category == 'Listening' else None,
-    #                 } for question in part.questions] 
-    #             } for part in test.parts],
-    #         },
-    #     })
     return render(request, "tests/abm_test_layout.html", {
         "test_form": NewTestForm()
     })
@@ -260,15 +313,14 @@ def assign(request, id):
                 messages.success(request, f'Test successfully assigned to {user.first_name} {user.last_name}')
                 return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
             except:
-                return HttpResponseRedirect(reverse("index"))
-
+                messages.error(request, f'You must select a student.')
+                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
 def unassign(request, id):
     if request.user.is_authenticated and request.user.is_teacher:
         if request.method == "POST":
             try:
                 user = User.objects.get(pk=int(request.POST["remove"]))
                 test = Test.objects.get(pk=id)
-                # TODO: sacar los que ya finalizaron la tarea
             
                 assignment = user.tests_assignments.get(test=test)
                 assignment.delete()
@@ -276,4 +328,5 @@ def unassign(request, id):
                 messages.success(request, f'Test successfully removed from {user.first_name} {user.last_name}.')
                 return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
             except:
-                return HttpResponseRedirect(reverse("index"))
+                messages.error(request, f'You must select a student.')
+                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
