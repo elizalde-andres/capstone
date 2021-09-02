@@ -84,7 +84,7 @@ class Question(models.Model):
 
 class TestAssignment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tests_assignments")
-    test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="test")
     assigned_date = DateField()
     score = DecimalField(max_digits=4, decimal_places=1, default=None, null=True, blank=True)
     score_percent = DecimalField(max_digits=4, decimal_places=1, default=None, null=True, blank=True)

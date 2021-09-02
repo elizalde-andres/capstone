@@ -12,8 +12,25 @@ document.addEventListener('DOMContentLoaded', function () {
             edit_test(edit_btn.value)
         })
     } catch(err) {
-        console.log(err)
     }
+    try{
+        next_part_btn = document.querySelector("#next-part-button")
+        assignment_id = document.querySelector("#assignment-id").value
+        next_part_btn.addEventListener("click", () => save_current_answers(assignment_id, false))
+    }catch(err){
+    }try{
+        prev_part_btn = document.querySelector("#prev-part-button")
+        assignment_id = document.querySelector("#assignment-id").value
+        prev_part_btn.addEventListener("click", () => save_current_answers(assignment_id, false))
+    }catch(err){
+    }
+    try{
+        finish_btn = document.querySelector("#finish-button")
+        assignment_id = document.querySelector("#assignment-id").value
+        finish_btn.addEventListener("click", () => save_current_answers(assignment_id, true))
+    }catch(err){
+    }
+    
      
 })
 
@@ -27,12 +44,6 @@ async function load_form() {
 
         category = document.querySelector("#test-category > select")
         
-        // category.addEventListener("change",() => {
-        //     document.querySelector("#parts-forms").innerHTML = ""
-        //     if (category.options[category.selectedIndex].text != ""){
-        //         add_empty_part_form(category.options[category.selectedIndex].text);
-        //     }
-        // })
         category.addEventListener("change",() => {
             document.querySelector("#parts-forms").innerHTML = ""
             if (category.options[category.selectedIndex].text != ""){
@@ -41,7 +52,6 @@ async function load_form() {
             }
         })
     } catch(err) {
-        console.log(err)
     }
 
 }
@@ -147,7 +157,6 @@ async function edit_test(id) {
     }
 
     // Create Parts 2, 3, ... and its questions forms
-    alert(Object.keys(test_data.parts).length)
     for (var i = 1; i < Object.keys(test_data.parts).length; i++) {
         await add_new_part()
         for (var j = 1; j < Object.keys(test_data.parts[part_number-1].questions).length; j++) {
@@ -171,12 +180,30 @@ async function edit_test(id) {
     document.querySelector(`#add-question-${question_number}`).style.display = "none"
     document.querySelector(`#delete-question-${question_number}`).style.display = "none"
 
-    // document.querySelector("#confirm-button").addEventListener("click", async () => {
-    //     await fetch(`/edit_test/${id}`, {
-    //         method: 'PUT',
-    //         body: JSON.stringify({
-    //             title: "titulin"
-    //         })
-    //       });
-    // })
 }
+
+async function save_current_answers(assignment_id, finish) {
+    part_num = document.querySelector("#part-number").value
+    answers = {}
+
+    question_numbers = document.querySelectorAll(".question_number")
+    question_numbers.forEach(question_num => {
+        answers[question_num.innerHTML] = document.querySelector(`#answer-${question_num.innerHTML}`).value
+    })
+    console.log(answers)
+    await fetch(`/answer/${assignment_id}`, {
+        method: 'PUT',
+        headers:{'X-CSRFToken': getCookie("csrftoken")},
+        body: JSON.stringify({
+            finish: finish,
+            part_number: part_num,
+            answers: answers
+        })
+      })
+}
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }

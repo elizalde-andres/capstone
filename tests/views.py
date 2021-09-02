@@ -13,6 +13,7 @@ from django.db.models.fields import EmailField
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http.response import JsonResponse
 from django.shortcuts import render
+from django.utils import timezone
 from django.urls import reverse
 
 import sys
@@ -117,9 +118,10 @@ def tests_view(request):
                 "finished_tests": finished_tests
             })
 
-def test_view(request, id):
+def test_view(request, id, assignment_id = None):
     try:
         test = Test.objects.get(pk=id)
+        # test = TestAssignment.objects.get(pk=id).test
         test_parts = test.parts.order_by("part_number")
 
         assignments = TestAssignment.objects.all()
@@ -139,7 +141,8 @@ def test_view(request, id):
         "test": test,
         "parts": parts,
         "assigned": assigned,
-        "assignable": assignable
+        "assignable": assignable,
+        "assignment_id": assignment_id
     })
     
 class NewTestForm(forms.Form):
@@ -257,6 +260,24 @@ def get_test(request):
         return JsonResponse(test_dict, safe=False)
     except:
         return JsonResponse({"error": "Invalid test id."}, status=400)
+
+
+def answer(request, assignment_id):
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        if data.get("finish") is not None:
+            assignment = TestAssignment.objects.get(pk=int(assignment_id))
+            test_part = TestPart.objects.get(test=assignment.test, part_number=data.get("part_number"))
+            
+            for k in data.get("answers"):
+                question = Question.objects.get(test_part=test_part, number=int(k))
+                answer = Answer(question=question, answer=data.get("answers")[k], test_assignment=assignment)
+                answer.save()
+
+            if data.get("finish") == True:
+                assignment.finished_date = timezone.now()
+                assignment.save()
+        return HttpResponseRedirect(reverse("tests"))
 
 def abm_test_layout(request):
     return render(request, "tests/abm_test_layout.html", {

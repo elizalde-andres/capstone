@@ -131,13 +131,12 @@
             <div class="row px-4">
               <div class="col mb-3">
                 <div class="row">
-                    {% csrf_token %}
                     {% for question in part.get_questions %}
-                      <div class="col-md col-sm-3 col-xs-6 m-3 p-2">
+                      <div class="col-md col-sm-3 col-xs-6 mt-3 pt-2">
                         <div class="row align-items-end">
-                            <label>{{ question.number }}.</label>
+                            <label><span class="question_number">{{ question.number }}</span>.</label>
                           <div class="col pl-1">
-                            <select class="custom-select">
+                            <select class="custom-select" id="answer-{{ question.number }}">
                               <option selected></option>
                               <option value="A">A</option>
                               <option value="B">B</option>
@@ -162,13 +161,12 @@
               <div class="row px-4">
                 <div class="col mb-3">
                   <div class="row">
-                      {% csrf_token %}
                       {% for question in part.get_questions %}
                       <div class="col-lg-6">
                         <div class="row align-items-end">
-                            <label class="pl-1">{{ question.number }}.</label>
+                            <label class="pl-1"><span class="question_number">{{ question.number }}</span>.</label>
                           <div class="col px-2 mb-2">
-                            <input type="text" class="form-control">
+                            <input type="text" class="form-control" id="answer-{{ question.number }}">
                           </div>
                           {% if question.audio %}
                               <audio src="{{ question.audio.url }}" controls >
@@ -186,15 +184,21 @@
               <ul class="pagination justify-content-center">
                 {% if parts.has_previous %}
                   <li class="btn-box">
-                      <a class="page-link" href="?part={{ parts.previous_page_number }}">Previous</a>
+                      <a class="page-link" href="?part={{ parts.previous_page_number }}" id="prev-part-button">Previous</a>
                   </li>
                 {% endif %}
                 <li class="pgn-box">
                     <a class="page-link">Part {{ parts.number }} of {{ parts.paginator.num_pages }}</a>
+                    <input type="hidden" value="{{ assignment_id }}" id="assignment-id">
+                    <input type="hidden" value="{{ parts.number }}" id="part-number">
                 </li>
                 {% if parts.has_next %}
                   <li class="btn-box">
-                      <a class="page-link" href="?part={{ parts.next_page_number }}">Next</a>
+                      <a class="page-link" href="?part={{ parts.next_page_number }}" id="next-part-button">Next</a>
+                  </li>
+                {% else %}
+                  <li class="btn-box">
+                    <a class="page-link" href="{% url 'tests' %}" id="finish-button">Finish</a>
                   </li>
                 {% endif %}
               </ul>
