@@ -66,8 +66,12 @@
       {% for assignment in assigned_tests %}
         <div class="box">
           <div class="img-box">
-            <a href="{% url 'test' assignment.test.id %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
-          </div>
+            {% if assignment.test.category.category == "Listening" %}
+              <a href="{% url 'test' assignment.test.id %}"><img src="{% static 'tests/images/listening_test.jpg' %}" alt="Listening" /></a>
+            {% else %}
+              <a href="{% url 'test' assignment.test.id %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
+            {% endif %}
+            </div>
           <div class="detail-box">
             <h4>
               <a href="{% url 'test' assignment.test.id %}">{{ assignment.test.title }}</a>
@@ -105,7 +109,11 @@
       {% for assignment in finished_tests %}
         <div class="box">
           <div class="img-box">
-            <a href="{% url 'test' assignment.test.id %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
+            {% if assignment.test.category.category == "Listening" %}
+              <a href="{% url 'test' assignment.test.id %}"><img src="{% static 'tests/images/listening_test.jpg' %}" alt="Listening" /></a>
+            {% else %}
+              <a href="{% url 'test' assignment.test.id %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
+            {% endif %}          
           </div>
           <div class="detail-box">
             <h4>

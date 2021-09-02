@@ -124,7 +124,7 @@ async function edit_test(id) {
 
     await load_form();
     document.querySelector("#form-title").innerHTML = "Edit test"
-    document.querySelector("#main-form").method = "PUT"
+    document.querySelector("#main-form").action = `/edit_test/${id}`
     document.querySelector("#confirm-button").innerHTML = "Save"
 
     input_title = document.querySelector("#test-form-title > input")
@@ -147,9 +147,10 @@ async function edit_test(id) {
     }
 
     // Create Parts 2, 3, ... and its questions forms
+    alert(Object.keys(test_data.parts).length)
     for (var i = 1; i < Object.keys(test_data.parts).length; i++) {
         await add_new_part()
-        for (var i = 1; i < Object.keys(test_data.parts[part_number-1].questions).length; i++) {
+        for (var j = 1; j < Object.keys(test_data.parts[part_number-1].questions).length; j++) {
             await add_new_question()
             current_question_answers = test_data.parts[part_number-1].questions[question_number-1-starting_part_question].correct_answers
             document.querySelector(`#correct-answers-${part_number}-${question_number-1}`).value = current_question_answers
@@ -169,4 +170,13 @@ async function edit_test(id) {
     document.querySelector(`#add-part-btn-${part_number}`).style.display = "none"
     document.querySelector(`#add-question-${question_number}`).style.display = "none"
     document.querySelector(`#delete-question-${question_number}`).style.display = "none"
+
+    // document.querySelector("#confirm-button").addEventListener("click", async () => {
+    //     await fetch(`/edit_test/${id}`, {
+    //         method: 'PUT',
+    //         body: JSON.stringify({
+    //             title: "titulin"
+    //         })
+    //       });
+    // })
 }

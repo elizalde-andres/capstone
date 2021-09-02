@@ -6,7 +6,7 @@
             <h5 id="form-title">
               Create new test
             </h5>
-            <form class="form-inline" action="{% url 'new_test' %}" method="post" id="main-form">
+            <form class="form-inline" enctype="multipart/form-data" action="{% url 'new_test' %}" method="post" id="main-form">
               {% csrf_token %}
 
               <div class="form-group col-md-8" id="test-form-title">

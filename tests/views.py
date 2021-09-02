@@ -19,7 +19,6 @@ import sys
 import traceback
 
 from .models import *
-# Create your views here.
 
 class RegisterForm(forms.Form):
     username = forms.CharField(max_length=64, widget=forms.TextInput(attrs={'placeholder': 'Username', 'autofocus': 'autofocus'}))
@@ -111,8 +110,8 @@ def tests_view(request):
         else:
             #TODO: add order_by
             tests = request.user.tests_assignments.all()
-            assigned_tests = tests.filter(finished_date=None)
-            finished_tests = tests.exclude(finished_date=None)
+            assigned_tests = tests.filter(finished_date=None).order_by("-assigned_date")
+            finished_tests = tests.exclude(finished_date=None).order_by("-finished_date")
             return render(request, "tests/tests.html", {
                 "assigned_tests": assigned_tests,
                 "finished_tests": finished_tests
@@ -169,7 +168,7 @@ def new_test(request):
                         text_content = request.POST[f"text-content-{part_number}"]
                         max_score_per_answer = request.POST[f"max-score-per-answer-{part_number}"]
                         try:
-                            content_img = request.POST[f"img-content-{part_number}"]
+                            content_img = request.FILES[f"img-content-{part_number}"]
                         except:
                             content_img = None
                         try:
@@ -178,7 +177,7 @@ def new_test(request):
                         except:
                             is_multiple_choice = False
                         try:
-                            audio = request.POST[f"part-audio-{part_number}"]
+                            audio = request.FILES[f"part-audio-{part_number}"]
                         except:
                             audio = None
 
@@ -189,11 +188,11 @@ def new_test(request):
                             question_number = last_question_part + 1
                             correct_answers = request.POST[f"correct-answers-{part_number}-{question_number}"]
                             try:
-                                audio = request.POST[f"question-audio-{part_number}-{question_number}"]
+                                audio = request.FILES[f"question-audio-{part_number}-{question_number}"]
                             except:
                                 audio = None
                             
-                            question = Question(test_part=TestPart.objects.get(pk=part.pk), number=question_number, correct_answers=correct_answers)
+                            question = Question(test_part=TestPart.objects.get(pk=part.pk), number=question_number, correct_answers=correct_answers, audio=audio)
                             question.save()
                             last_question_part += 1
 
@@ -207,61 +206,41 @@ def new_test(request):
 
 
 def edit_test(request, id):
-    # TODO: add editing test with put
-    if request.method == "PUT":
+    if request.method == "POST":
         if request.user.is_authenticated and request.user.is_teacher:
-            test_form = NewTestForm(request.POST)
-            if test_form.is_valid():
-                try:
-                    title = request.POST["title"]
-                    category_id = request.POST["category"]
-                    test = Test(title=title, category=Category.objects.get(pk=category_id))
-                    test.save()
+            test_data = request.POST
+            # try:
+            title = test_data["title"]
+            test = Test.objects.get(pk=id)
+            test.title = title
+            test.save()
 
-                    parts_count = int(request.POST["parts_count"])
-                    last_question_part = 0
-                    for i in range(parts_count):
-                        part_number = i+1
-                        questions_count = int(request.POST[f"questions-count-{part_number}"]) - last_question_part
+            for part_number in range(int(test_data["parts_count"])):
+                part_number += 1
+                part = test.parts.get(part_number=int(part_number))
+                part.content = test_data[f"text-content-{part_number}"]
+                part.max_score_per_answer = test_data[f"max-score-per-answer-{part_number}"]
+                
+                if f"img-content-{part_number}" in request.FILES:
+                    part.content_img = request.FILES[f"img-content-{part_number}"]
+                if f"is-multiple-choice-{part_number}" in test_data:
+                    part.is_multiple_choice = True
+                if f"part-audio-{part_number}" in request.FILES:
+                    part.audio = request.FILES[f"part-audio-{part_number}"]
+                part.save()
 
-                        text_content = request.POST[f"text-content-{part_number}"]
-                        max_score_per_answer = request.POST[f"max-score-per-answer-{part_number}"]
-                        try:
-                            content_img = request.POST[f"img-content-{part_number}"]
-                        except:
-                            content_img = None
-                        try:
-                            is_multiple_choice = request.POST[f"is-multiple-choice-{part_number}"]
-                            is_multiple_choice = True if is_multiple_choice == 'on' else False
-                        except:
-                            is_multiple_choice = False
-                        try:
-                            audio = request.POST[f"part-audio-{part_number}"]
-                        except:
-                            audio = None
+                for i in range(len(test_data.getlist(f"questions-count-{part_number}"))):
+                    question_number = test_data.getlist(f"questions-count-{part_number}")[i]
+                    question = part.questions.get(number=question_number)
+                    question.correct_answers = test_data[f"correct-answers-{part_number}-{question_number}"]
 
-                        part = TestPart(test=test, part_number=part_number, content=text_content, content_img=content_img, is_multiple_choice=is_multiple_choice, max_score_per_answer=max_score_per_answer, audio=audio)
-                        part.save()
-
-                        for j in range(questions_count):
-                            question_number = last_question_part + 1
-                            correct_answers = request.POST[f"correct-answers-{part_number}-{question_number}"]
-                            try:
-                                audio = request.POST[f"question-audio-{part_number}-{question_number}"]
-                            except:
-                                audio = None
-                            
-                            question = Question(test_part=TestPart.objects.get(pk=part.pk), number=question_number, correct_answers=correct_answers)
-                            question.save()
-                            last_question_part += 1
-
-                    return render(request, "tests/new_test.html")
-                except:
-                    return render(request, "tests/new_test.html", {
-                        "message": "Error saving test"
-                    })
+                    if f"question-audio-{part_number}-{question_number}" in request.FILES:
+                        question.audio = request.FILES[f"question-audio-{part_number}-{question_number}"]
+                    question.save()
+            return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
     else:
-        return render(request, "tests/new_test.html")
+        messages.error(request, f'Error saving test.')
+        return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
 
 
 def get_test(request):
