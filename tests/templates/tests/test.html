@@ -1,5 +1,6 @@
 {% extends "tests/layout.html" %}
 {% load static %}
+{% load load_answer %}
 
 {% block script %}
     <script src="{% static 'tests/js/test.js' %}"></script>
@@ -114,7 +115,7 @@
           <div class="col-12">
             <div class="box">
               <div>
-                <div class="text-left">
+                <div class="text-left col">
                   {{ part.content|linebreaksbr }}
                 </div>
                 {% if part.content_img %}
@@ -127,35 +128,37 @@
             </div>
           </div>
           {% if part.is_multiple_choice %}
-          <div class="col-12">
-            <div class="row px-4">
-              <div class="col mb-3">
-                <div class="row">
-                    {% for question in part.get_questions %}
-                      <div class="col-md col-sm-3 col-xs-6 mt-3 pt-2">
-                        <div class="row align-items-end">
-                            <label><span class="question_number">{{ question.number }}</span>.</label>
-                          <div class="col pl-1">
-                            <select class="custom-select" id="answer-{{ question.number }}">
-                              <option selected></option>
-                              <option value="A">A</option>
-                              <option value="B">B</option>
-                              <option value="C">C</option>
-                              {% if part.test.category.category != "Listening" %}
-                              <option value="D">D</option>
-                              {% endif %}
-                            </select>
+            <div class="col-12">
+              <div class="row px-4">
+                <div class="col mb-3">
+                  <div class="row">
+                      {% for question in part.get_questions %}
+                        <div class="col-md col-sm-3 col-xs-6 mt-3 pt-2">
+                          {% if assignment %}
+                          <div class="row align-items-end">
+                              <label><span class="question_number">{{ question.number }}</span>.</label>
+                            <div class="col pl-1">
+                              <select class="custom-select" id="answer-{{ question.number }}">
+                                <option selected></option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                {% if part.test.category.category != "Listening" %}
+                                <option value="D">D</option>
+                                {% endif %}
+                              </select>
+                            </div>
                           </div>
+                          {% endif %}
+                          {% if question.audio %}
+                              <audio src="{{ question.audio.url }}" controls >
+                          {% endif %}
                         </div>
-                        {% if question.audio %}
-                            <audio src="{{ question.audio.url }}" controls >
-                        {% endif %}
-                      </div>
-                    {% endfor %}
+                      {% endfor %}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>  
+            </div>  
           {% else %}
             <div class="col-12">
               <div class="row px-4">
@@ -164,10 +167,12 @@
                       {% for question in part.get_questions %}
                       <div class="col-lg-6">
                         <div class="row align-items-end">
+                          {% if assignment %}
                             <label class="pl-1"><span class="question_number">{{ question.number }}</span>.</label>
                           <div class="col px-2 mb-2">
-                            <input type="text" class="form-control" id="answer-{{ question.number }}">
+                            <input type="text" class="form-control" id="answer-{{ question.number }}" value="{{ assignment|load_answer:question }}">
                           </div>
+                          {% endif %}
                           {% if question.audio %}
                               <audio src="{{ question.audio.url }}" controls >
                           {% endif %}
@@ -189,7 +194,7 @@
                 {% endif %}
                 <li class="pgn-box">
                     <a class="page-link">Part {{ parts.number }} of {{ parts.paginator.num_pages }}</a>
-                    <input type="hidden" value="{{ assignment_id }}" id="assignment-id">
+                    <input type="hidden" value="{{ assignment.id }}" id="assignment-id">
                     <input type="hidden" value="{{ parts.number }}" id="part-number">
                 </li>
                 {% if parts.has_next %}

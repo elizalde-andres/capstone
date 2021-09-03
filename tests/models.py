@@ -92,6 +92,10 @@ class TestAssignment(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user} - {self.test}"
+    
+    def get_answer(self, question):
+        return Answer.objects.get(test_assignment=self.id, question=question).answer
+       
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, models.CASCADE)

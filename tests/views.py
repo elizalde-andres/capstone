@@ -121,7 +121,6 @@ def tests_view(request):
 def test_view(request, id, assignment_id = None):
     try:
         test = Test.objects.get(pk=id)
-        # test = TestAssignment.objects.get(pk=id).test
         test_parts = test.parts.order_by("part_number")
 
         assignments = TestAssignment.objects.all()
@@ -133,6 +132,10 @@ def test_view(request, id, assignment_id = None):
             "message": "Invalid test part"
         })
 
+    assignment = None
+    if assignment_id:
+        assignment = TestAssignment.objects.get(pk=assignment_id)
+       
     paginator = Paginator(test_parts,1)
     page_number = request.GET.get('part')
     parts = paginator.get_page(page_number)
@@ -142,7 +145,7 @@ def test_view(request, id, assignment_id = None):
         "parts": parts,
         "assigned": assigned,
         "assignable": assignable,
-        "assignment_id": assignment_id
+        "assignment": assignment
     })
     
 class NewTestForm(forms.Form):
@@ -271,7 +274,12 @@ def answer(request, assignment_id):
             
             for k in data.get("answers"):
                 question = Question.objects.get(test_part=test_part, number=int(k))
-                answer = Answer(question=question, answer=data.get("answers")[k], test_assignment=assignment)
+                # answer = Answer(question=question, answer=data.get("answers")[k], test_assignment=assignment)
+                try:
+                    answer = Answer.objects.get(question=question, test_assignment=assignment)
+                except:
+                    answer = Answer(question=question, test_assignment=assignment)
+                answer.answer = data.get("answers")[k]
                 answer.save()
 
             if data.get("finish") == True:

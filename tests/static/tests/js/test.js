@@ -201,6 +201,7 @@ async function save_current_answers(assignment_id, finish) {
         })
       })
 }
+// TODO: Preload answers if test is not finished
 
 function getCookie(name) {
     const value = `; ${document.cookie}`;
