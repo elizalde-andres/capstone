@@ -274,18 +274,44 @@ def answer(request, assignment_id):
             
             for k in data.get("answers"):
                 question = Question.objects.get(test_part=test_part, number=int(k))
-                # answer = Answer(question=question, answer=data.get("answers")[k], test_assignment=assignment)
                 try:
                     answer = Answer.objects.get(question=question, test_assignment=assignment)
                 except:
                     answer = Answer(question=question, test_assignment=assignment)
                 answer.answer = data.get("answers")[k]
+                
+                # Calculate answer score
+                correct_answers = question.correct_answers
+
+                if answer.answer == correct_answers:
+                    answer.score = test_part.max_score_per_answer
+                else:
+                    answer.score = 0
+
                 answer.save()
 
             if data.get("finish") == True:
+                # Mark as finished
                 assignment.finished_date = timezone.now()
+
+                # Calculate assignment score
+                assignment.score = 0
+                for answer in assignment.answers.all():
+                    assignment.score += answer.score
+
+                max_test_score = 0
+                for part in assignment.test.parts.all():
+                    max_test_score += part.max_score_per_answer * part.questions.count()
+                
+                assignment.score_percent = assignment.score / max_test_score *100
+
                 assignment.save()
-        return HttpResponseRedirect(reverse("tests"))
+            return HttpResponse(status=301)
+    else:
+        return HttpResponse(status=500)
+
+def results(request, assignment_id):
+    return render(request, "tests/results.html")
 
 def abm_test_layout(request):
     return render(request, "tests/abm_test_layout.html", {

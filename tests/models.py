@@ -94,7 +94,11 @@ class TestAssignment(models.Model):
         return f"{self.user} - {self.test}"
     
     def get_answer(self, question):
-        return Answer.objects.get(test_assignment=self.id, question=question).answer
+        try:
+            answer = Answer.objects.get(test_assignment=self.id, question=question).answer
+        except:
+            answer = ""
+        return answer
        
 
 class Answer(models.Model):

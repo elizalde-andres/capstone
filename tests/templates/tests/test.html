@@ -140,11 +140,11 @@
                             <div class="col pl-1">
                               <select class="custom-select" id="answer-{{ question.number }}">
                                 <option selected></option>
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="C">C</option>
+                                <option value="A" {% if assignment|load_answer:question == 'A' %}selected{% endif %}>A</option>
+                                <option value="B" {% if assignment|load_answer:question == 'B' %}selected{% endif %}>B</option>
+                                <option value="C" {% if assignment|load_answer:question == 'C' %}selected{% endif %}>C</option>
                                 {% if part.test.category.category != "Listening" %}
-                                <option value="D">D</option>
+                                <option value="D" {% if assignment|load_answer:question == 'D' %}selected{% endif %}>D</option>
                                 {% endif %}
                               </select>
                             </div>
@@ -203,7 +203,7 @@
                   </li>
                 {% else %}
                   <li class="btn-box">
-                    <a class="page-link" href="{% url 'tests' %}" id="finish-button">Finish</a>
+                    <a class="page-link" href="{% url 'results' assignment.id %}" id="finish-button">Finish</a>
                   </li>
                 {% endif %}
               </ul>

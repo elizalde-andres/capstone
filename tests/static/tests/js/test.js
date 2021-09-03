@@ -183,25 +183,23 @@ async function edit_test(id) {
 }
 
 async function save_current_answers(assignment_id, finish) {
-    part_num = document.querySelector("#part-number").value
     answers = {}
 
-    question_numbers = document.querySelectorAll(".question_number")
-    question_numbers.forEach(question_num => {
+    document.querySelectorAll(".question_number").forEach(question_num => {
         answers[question_num.innerHTML] = document.querySelector(`#answer-${question_num.innerHTML}`).value
     })
-    console.log(answers)
+    
     await fetch(`/answer/${assignment_id}`, {
         method: 'PUT',
+        redirect: 'follow',
         headers:{'X-CSRFToken': getCookie("csrftoken")},
         body: JSON.stringify({
             finish: finish,
-            part_number: part_num,
+            part_number: document.querySelector("#part-number").value,
             answers: answers
         })
-      })
+    })
 }
-// TODO: Preload answers if test is not finished
 
 function getCookie(name) {
     const value = `; ${document.cookie}`;
