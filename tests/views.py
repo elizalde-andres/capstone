@@ -281,9 +281,15 @@ def answer(request, assignment_id):
                 answer.answer = data.get("answers")[k]
                 
                 # Calculate answer score
-                correct_answers = question.correct_answers
-
-                if answer.answer == correct_answers:
+                correct_answers = question.correct_answers.lower()
+                print("******************")
+                print(correct_answers)
+                # TODO:assign as correct if correct answrs is list
+                correct_answers = correct_answers.split(";")
+                correct_answers = [answer.strip() for answer in correct_answers]
+                print(correct_answers)
+                print(f"Comparing {answer.answer} in {correct_answers} {answer.answer in correct_answers}")
+                if answer.answer.lower() in correct_answers:
                     answer.score = test_part.max_score_per_answer
                 else:
                     answer.score = 0
@@ -306,12 +312,16 @@ def answer(request, assignment_id):
                 assignment.score_percent = assignment.score / max_test_score *100
 
                 assignment.save()
-            return HttpResponse(status=301)
+                return HttpResponse(status=200)
+            return HttpResponse(status=200)
+        return HttpResponse(status=200)
     else:
         return HttpResponse(status=500)
 
 def results(request, assignment_id):
-    return render(request, "tests/results.html")
+    return render(request, "tests/results.html", {
+        "assignment": TestAssignment.objects.get(pk=int(assignment_id))
+    })
 
 def abm_test_layout(request):
     return render(request, "tests/abm_test_layout.html", {

@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block body %}
-RESULTADOSSSS
 {% if user.is_teacher %}
   <!-- student test section -->
   <section class="event_section layout_padding">
@@ -52,26 +51,20 @@ RESULTADOSSSS
 
   <!-- end student test section -->
 {% else %}
-<!-- student test section -->
+<!-- student results section -->
 <section class="event_section layout_padding">
   <div class="container">
     <div class="heading_container">
       <h3>
-        Assigned tests
+        Results
       </h3>
-      <p>
-        Here are your next assignments.
-      </p>
+      
     </div>
     <div class="event_container">
-      {% for assignment in assigned_tests %}
         <div class="box">
-          <div class="img-box">
-            <a href="{% url 'test' assignment.test.id %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
-          </div>
-          <div class="detail-box">
+          <div class="detail-box border-0">
             <h4>
-              <a href="{% url 'test' assignment.test.id %}">{{ assignment.test.title }}</a>
+              {{ assignment.test.title }}
             </h4>
             <h6>
               {% if assignment.test.category.category == "Listening" %}
@@ -82,16 +75,28 @@ RESULTADOSSSS
               {{ assignment.test.category }}
             </h6>
           </div>
+          <div class="detail-box">
+            <h1>
+              <strong>
+                {{ assignment.score_percent }}%
+              </strong>
+            </h1>
+          </div>
           <div class="date-box">
-            <h3>
+            <h4>
               <span>
                 {{ assignment.assigned_date.day }}
               </span>
               {{ assignment.assigned_date|date:"F" }}
-            </h3>
+            </h4>
+            <h6>
+              <span>
+                Finished
+              </span>
+              {{ assignment.finished_date.day }} {{ assignment.finished_date|date:"F" }}
+            </h6>
           </div>
         </div>
-        {% endfor %}
     </div>
 
     <div class="heading_container layout_padding2-top">

@@ -189,21 +189,22 @@
               <ul class="pagination justify-content-center">
                 {% if parts.has_previous %}
                   <li class="btn-box">
-                      <a class="page-link" href="?part={{ parts.previous_page_number }}" id="prev-part-button">Previous</a>
+                      <a class="page-link" href="#" onclick="save_current_answers('{{ assignment.id }}', false, `?part={{ parts.previous_page_number }}` )" id="prev-part-button">Previous</a>
                   </li>
                 {% endif %}
                 <li class="pgn-box">
                     <a class="page-link">Part {{ parts.number }} of {{ parts.paginator.num_pages }}</a>
                     <input type="hidden" value="{{ assignment.id }}" id="assignment-id">
                     <input type="hidden" value="{{ parts.number }}" id="part-number">
+                    <input type="hidden" value="{{ csrf_token }}" id="csrfToken" />
                 </li>
                 {% if parts.has_next %}
                   <li class="btn-box">
-                      <a class="page-link" href="?part={{ parts.next_page_number }}" id="next-part-button">Next</a>
+                      <a class="page-link" href="#" onclick="save_current_answers('{{ assignment.id }}', false, `?part={{ parts.next_page_number }}` )" id="next-part-button">Next</a>
                   </li>
                 {% else %}
                   <li class="btn-box">
-                    <a class="page-link" href="{% url 'results' assignment.id %}" id="finish-button">Finish</a>
+                    <a class="page-link" href="#" onclick="save_current_answers('{{ assignment.id }}', true, `{% url 'results' assignment.id %}` )" id="finish-button">Finish</a>
                   </li>
                 {% endif %}
               </ul>

@@ -13,25 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
         })
     } catch(err) {
     }
-    try{
-        next_part_btn = document.querySelector("#next-part-button")
-        assignment_id = document.querySelector("#assignment-id").value
-        next_part_btn.addEventListener("click", () => save_current_answers(assignment_id, false))
-    }catch(err){
-    }try{
-        prev_part_btn = document.querySelector("#prev-part-button")
-        assignment_id = document.querySelector("#assignment-id").value
-        prev_part_btn.addEventListener("click", () => save_current_answers(assignment_id, false))
-    }catch(err){
-    }
-    try{
-        finish_btn = document.querySelector("#finish-button")
-        assignment_id = document.querySelector("#assignment-id").value
-        finish_btn.addEventListener("click", () => save_current_answers(assignment_id, true))
-    }catch(err){
-    }
-    
-     
 })
 
 async function load_form() {
@@ -182,23 +163,26 @@ async function edit_test(id) {
 
 }
 
-async function save_current_answers(assignment_id, finish) {
+async function save_current_answers(assignment_id, finish, url) {
     answers = {}
 
     document.querySelectorAll(".question_number").forEach(question_num => {
         answers[question_num.innerHTML] = document.querySelector(`#answer-${question_num.innerHTML}`).value
     })
-    
+    var csrfToken = await document.getElementById("csrfToken").value
+    var part_number = await document.querySelector("#part-number").value
     await fetch(`/answer/${assignment_id}`, {
         method: 'PUT',
-        redirect: 'follow',
-        headers:{'X-CSRFToken': getCookie("csrftoken")},
+        headers:{'X-CSRFToken': csrfToken},
         body: JSON.stringify({
             finish: finish,
-            part_number: document.querySelector("#part-number").value,
+            part_number: part_number,
             answers: answers
         })
     })
+    
+    location.href = url
+    
 }
 
 function getCookie(name) {
