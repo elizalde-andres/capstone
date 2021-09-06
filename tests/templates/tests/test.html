@@ -83,7 +83,7 @@
               </h3>
               <h4>{{ test.timestamp.year }}</h4>
               <button type="button" class="btn" value="{{ test.id }}" id="results-btn">
-                <div class="btn-box"><a class="page-link mt-0">See results</a></div>
+                <div class="btn-box"><a href="{% url 'teacher_results' test.id %}" class="page-link mt-0">See results</a></div>
               </button>
             </div>
           </div>
@@ -203,9 +203,11 @@
                       <a class="page-link" href="#" onclick="save_current_answers('{{ assignment.id }}', false, `?part={{ parts.next_page_number }}` )" id="next-part-button">Next</a>
                   </li>
                 {% else %}
-                  <li class="btn-box">
-                    <a class="page-link" href="#" onclick="save_current_answers('{{ assignment.id }}', true, `{% url 'results' assignment.id %}` )" id="finish-button">Finish</a>
-                  </li>
+                  {% if assignment.id %}
+                    <li class="btn-box">
+                      <a class="page-link" href="#" onclick="save_current_answers('{{ assignment.id }}', true, `{% url 'results' assignment.id %}` )" id="finish-button">Finish</a>
+                    </li>
+                  {% endif %}
                 {% endif %}
               </ul>
             </nav>

@@ -84,7 +84,7 @@ class Question(models.Model):
 
 class TestAssignment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tests_assignments")
-    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="test")
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="assignments")
     assigned_date = DateField()
     score = DecimalField(max_digits=4, decimal_places=1, default=None, null=True, blank=True)
     score_percent = DecimalField(max_digits=4, decimal_places=1, default=None, null=True, blank=True)
@@ -96,6 +96,20 @@ class TestAssignment(models.Model):
     def get_answer(self, question):
         try:
             answer = Answer.objects.get(test_assignment=self.id, question=question).answer
+        except:
+            answer = ""
+        return answer
+    
+    def get_answer_id(self, question):
+        try:
+            answer_id = Answer.objects.get(test_assignment=self.id, question=question).id
+        except:
+            answer_id = None
+        return answer_id
+
+    def get_score(self, question):
+        try:
+            answer = Answer.objects.get(test_assignment=self.id, question=question).score.normalize()
         except:
             answer = ""
         return answer

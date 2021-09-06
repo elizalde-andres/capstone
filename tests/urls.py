@@ -13,6 +13,7 @@ urlpatterns = [
     path("test/<int:id>", views.test_view, name="test"),
     path("test/<int:id>/<int:assignment_id>", views.test_view, name="test"),
     path("results/<int:assignment_id>", views.results, name="results"),
+    path("teacher_results/<int:test_id>", views.teacher_results, name="teacher_results"),
     path("assign/<int:id>", views.assign, name="assign"),
     path("unassign/<int:id>", views.unassign, name="unassign"),
     path("new_test/", views.new_test, name="new_test"),
@@ -24,5 +25,6 @@ urlpatterns = [
     # API
     path("get_test/", views.get_test, name="get_test"),
     path("answer/<int:assignment_id>", views.answer, name="answer"),
+    path("update_score/<int:assignment_id>/<int:answer_id>", views.update_score, name="update_score"),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -119,6 +119,8 @@ def tests_view(request):
             })
 
 def test_view(request, id, assignment_id = None):
+    print(id)
+    print(assignment_id)
     try:
         test = Test.objects.get(pk=id)
         test_parts = test.parts.order_by("part_number")
@@ -139,6 +141,13 @@ def test_view(request, id, assignment_id = None):
     paginator = Paginator(test_parts,1)
     page_number = request.GET.get('part')
     parts = paginator.get_page(page_number)
+
+    print("*****************")
+    print(test)
+    print(parts)
+    print(assigned)
+    print(assignable)
+    print(assignment)
 
     return render(request, "tests/test.html", {
         "test": test,
@@ -198,7 +207,7 @@ def new_test(request):
                             except:
                                 audio = None
                             
-                            question = Question(test_part=TestPart.objects.get(pk=part.pk), number=question_number, correct_answers=correct_answers, audio=audio)
+                            question = Question(test_part=TestPart.objects.get(pk=part.id), number=question_number, correct_answers=correct_answers, audio=audio)
                             question.save()
                             last_question_part += 1
 
@@ -282,13 +291,9 @@ def answer(request, assignment_id):
                 
                 # Calculate answer score
                 correct_answers = question.correct_answers.lower()
-                print("******************")
-                print(correct_answers)
                 # TODO:assign as correct if correct answrs is list
                 correct_answers = correct_answers.split(";")
                 correct_answers = [answer.strip() for answer in correct_answers]
-                print(correct_answers)
-                print(f"Comparing {answer.answer} in {correct_answers} {answer.answer in correct_answers}")
                 if answer.answer.lower() in correct_answers:
                     answer.score = test_part.max_score_per_answer
                 else:
@@ -318,9 +323,47 @@ def answer(request, assignment_id):
     else:
         return HttpResponse(status=500)
 
+def update_score(request, assignment_id, answer_id):
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        new_score = data.get("new_score")
+        if new_score is not None:
+            assignment = TestAssignment.objects.get(pk=int(assignment_id))
+            answer = assignment.answers.get(pk=int(answer_id))
+            answer.score = float(new_score)
+            answer.save()
+
+            # Calculate assignment score
+            assignment.score = 0
+            for answer in assignment.answers.all():
+                assignment.score += answer.score
+
+            max_test_score = 0
+            for part in assignment.test.parts.all():
+                max_test_score += part.max_score_per_answer * part.questions.count()
+            
+            assignment.score_percent = assignment.score / max_test_score *100
+            assignment.save()
+            return HttpResponse(status=204)
+        else:
+            return HttpResponse(status=500) 
+    else:
+        return HttpResponse(status=500) 
+
 def results(request, assignment_id):
     return render(request, "tests/results.html", {
         "assignment": TestAssignment.objects.get(pk=int(assignment_id))
+    })
+
+def teacher_results(request, test_id):
+    test_assignments = Test.objects.get(pk=test_id).assignments.all().order_by("-finished_date")
+
+    paginator = Paginator(test_assignments,2)
+    page_number = request.GET.get('part')
+    assignments = paginator.get_page(page_number)
+
+    return render(request, "tests/teacher_results.html", {
+        "assignments": assignments
     })
 
 def abm_test_layout(request):

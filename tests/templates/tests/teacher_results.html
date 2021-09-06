@@ -1,0 +1,143 @@
+{% extends "tests/layout.html" %}
+{% load static %}
+{% load load_answer %}
+
+{% block script %}
+    <script src="{% static 'tests/js/teacher_results.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+{% if user.is_teacher %}
+<section class="event_section layout_padding">
+  <div class="container">
+    <div class="heading_container">
+      <h3>
+        Results
+      </h3>
+    </div>
+    {% for assignment in assignments %}
+      <div class="event_container layout_padding2-top">
+        <div class="box">
+          <div class="detail-box border-0">
+            <h4>
+              {{ assignment.test.title }}
+            </h4>
+            <h6>
+              {% if assignment.test.category.category == "Listening" %}
+                    <i class="fas fa-headphones-alt"></i>
+              {% else %}
+                    <i class="fa fas fa-glasses"></i>
+              {% endif %}
+              {{ assignment.test.category }}
+            </h6>
+          </div>
+          <div class="detail-box">
+            <h1>
+              <strong>
+                {{ assignment.score_percent }}%
+              </strong>
+            </h1>
+            <h3>
+                {{ assignment.user.first_name }} {{ assignment.user.last_name }}
+            </h3>
+          </div>
+          <div class="date-box">
+            <h4>
+              <span>
+                {{ assignment.assigned_date.day }}
+              </span>
+              {{ assignment.assigned_date|date:"F" }}
+            </h4>
+            <h6>
+              <span>
+                Finished
+              </span>
+              {{ assignment.finished_date.day }} {{ assignment.finished_date|date:"F" }}
+            </h6>
+            <button type="button" class="btn expand-collapse" value="{{ assignment.id }}" id="expand-collapse-{{ assignment.id }}">
+              <div class="btn-box"><a class="page-link mt-0">Expand answers <i class="fa fa-solid fa-chevron-down"></i></a></div>
+            </button>
+          </div>
+        </div>
+        <div class="row results-table" id="results-{{ assignment.id }}">
+          <div class="col-md-12">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-md-1">
+                  <strong>#</strong>
+                </div>
+                <div class="col-md-4">
+                  <strong>{{ assignment.user.first_name }}'s answer</strong>
+                </div>
+                <div class="col-md-5">
+                  <strong>Correct answer(s)</strong>
+                </div>
+                <div class="col-md-2">
+                  <strong>Score</strong>
+                </div>
+              </div>
+              {% for part in assignment.test.parts.all %}
+                {% for question in part.questions.all %}
+                  <div class="row align-items-center {% cycle 'bg-light' '' %} {% if assignment|load_score:question != 0 %}text-success{% else %}text-warning{% endif %}">
+                    <div class="col-sm-1">
+                      {{ question.number }}
+                    </div>
+                    <div class="col-sm-4">
+                      {{ assignment|load_answer:question }}
+                    </div>
+                    <div class="col-sm-5">
+                      {{ question.correct_answers }}
+                    </div>
+                    <div class="col-sm-2">
+                      <div class="row align-items-center">
+                        <div class="col">
+                          {% if assignment|load_score:question != part.max_score_per_answer %}
+                            <input type="number" name="score-{{ assignment.id }}-{{ question.id }}" value="{{ assignment|load_score:question }}" class="form-control new-score-{{ assignment.id }}" min="0" max="{{ part.max_score_per_answer }}" required="" id="{{ assignment|load_answer_id:question }}"></div><div class="col p-0 ">/{{ part.max_score_per_answer }}
+                          {% else %}
+                            {{ assignment|load_score:question }}/{{ part.max_score_per_answer }}
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% endfor %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 text-right">                    
+              <button type="button" class="btn update-score-btn" value="{{ assignment.id }}" id="update-score-{{ assignment.id }}">
+                <div class="btn-box"><a class="page-link mt-0">Update score</a></div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <input type="hidden" value="{{ assignment.user.id }}" id="user-id">
+      <input type="hidden" value="{{ assignment.id }}" id="assignment-id">
+      <input type="hidden" value="{{ csrf_token }}" id="csrfToken" /> 
+    {% endfor %}
+  </div>
+
+  <div class="col-12">
+    <nav>
+      <ul class="pagination justify-content-center">
+        {% if assignments.has_previous %}
+          <li class="btn-box">
+              <a class="page-link" href="?part={{ assignments.previous_page_number }}" id="prev-part-button">Previous</a>
+          </li>
+        {% endif %}
+        <li class="pgn-box">
+            <a class="page-link">Page {{ assignments.number }} of {{ assignments.paginator.num_pages }}</a>
+        </li>
+        {% if assignments.has_next %}
+          <li class="btn-box">
+              <a class="page-link" href="?part={{ assignments.next_page_number }}" id="next-part-button">Next</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
