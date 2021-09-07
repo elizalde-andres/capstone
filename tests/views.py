@@ -118,6 +118,7 @@ def register(request):
             "form": RegisterForm()
         })
 
+# Display the test content for the given id.
 def test_view(request, id, assignment_id = None):
     try:
         test = Test.objects.get(pk=id)
@@ -126,7 +127,7 @@ def test_view(request, id, assignment_id = None):
         assignments = TestAssignment.objects.all()
         assigned = [assignment.user for assignment in assignments.filter(test=test)]
 
-        assignable = User.objects.exclude(pk__in=[user.id for user in assigned])
+        assignable = User.objects.exclude(pk__in=[user.id for user in assigned]).exclude(is_teacher=True)
     except:
         return render(request, "tests/404.html", {
             "message": "The test doesn't exist."
@@ -164,6 +165,19 @@ class NewTestForm(forms.Form):
     categories += [(category.id, category.category) for category in Category.objects.all().order_by("category")]
     category = forms.ChoiceField(choices=categories, label="Category", widget=forms.Select(attrs = { 'class': 'form-control'}))
 
+# Display all the finished assignment for the given test.
+def teacher_results(request, test_id):
+    test_assignments = Test.objects.get(pk=test_id).assignments.exclude(finished_date=None).order_by("-finished_date")
+
+    paginator = Paginator(test_assignments,2)
+    page_number = request.GET.get('part')
+    assignments = paginator.get_page(page_number)
+
+    return render(request, "tests/teacher_results.html", {
+        "assignments": assignments
+    })
+
+# Create a new test with the given data
 def new_test(request):
     if request.method == "POST":
         if request.user.is_authenticated and request.user.is_teacher:
@@ -211,8 +225,7 @@ def new_test(request):
                             question = Question(test_part=TestPart.objects.get(pk=part.id), number=question_number, correct_answers=correct_answers, audio=audio)
                             question.save()
                             last_question_part += 1
-
-                    return render(request, "tests/new_test.html")
+                    return HttpResponseRedirect(reverse("index"))
                 except:
                     return render(request, "tests/new_test.html", {
                         "message": "Error saving test"
@@ -220,12 +233,27 @@ def new_test(request):
     else:
         return render(request, "tests/new_test.html")
 
+# Returns the test data in json format (title, category, parts info and questions info)
+def get_test(request,id):
+    try: 
+        test = Test.objects.get(pk=id)
+        test_dict = test.serialize()
+        
+        test_dict["parts"] = [ part.serialize() for part in test.parts.all()]
+        
+        for part in test_dict["parts"]:
+            part["questions"] = [question.serialize() for question in test.parts.get(part_number=part["part_number"]).questions.all()]
+        
+        return JsonResponse(test_dict, safe=False)
+    except:
+        return JsonResponse({"error": "Invalid test id."}, status=400)
 
+# Save the new teacher's data for the given test
 def edit_test(request, id):
     if request.method == "POST":
         if request.user.is_authenticated and request.user.is_teacher:
             test_data = request.POST
-            # try:
+            
             title = test_data["title"]
             test = Test.objects.get(pk=id)
             test.title = title
@@ -287,23 +315,7 @@ def edit_test(request, id):
         messages.error(request, f'Error saving test.')
         return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
 
-
-def get_test(request):
-    try: 
-        id = request.GET.get('id')
-        test = Test.objects.get(pk=id)
-        test_dict = test.serialize()
-        
-        test_dict["parts"] = [ part.serialize() for part in test.parts.all()]
-        
-        for part in test_dict["parts"]:
-            part["questions"] = [question.serialize() for question in test.parts.get(part_number=part["part_number"]).questions.all()]
-        
-        return JsonResponse(test_dict, safe=False)
-    except:
-        return JsonResponse({"error": "Invalid test id."}, status=400)
-
-
+# Sets the given answers by the student for a certain part
 def answer(request, assignment_id):
     if request.method == "PUT":
         data = json.loads(request.body)
@@ -353,6 +365,7 @@ def answer(request, assignment_id):
     else:
         return HttpResponse(status=500)
 
+# Set custom score by teacher for given answer.
 def update_score(request, assignment_id, answer_id):
     if request.method == "PUT":
         data = json.loads(request.body)
@@ -380,17 +393,40 @@ def update_score(request, assignment_id, answer_id):
     else:
         return HttpResponse(status=500) 
 
-def teacher_results(request, test_id):
-    test_assignments = Test.objects.get(pk=test_id).assignments.all().order_by("-finished_date")
+# Assign given test to given student
+def assign(request, id):
+    if request.user.is_authenticated and request.user.is_teacher:
+        if request.method == "POST":
+            try:
+                user = User.objects.get(pk=int(request.POST["assign"]))
+                test = Test.objects.get(pk=id)
+                assigned_date = datetime.date.today()
+                assignment = TestAssignment(user=user, test=test, assigned_date=assigned_date)
+                assignment.save()
+                messages.success(request, f'Test successfully assigned to {user.first_name} {user.last_name}')
+                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
+            except:
+                messages.error(request, f'You must select a student.')
+                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
 
-    paginator = Paginator(test_assignments,2)
-    page_number = request.GET.get('part')
-    assignments = paginator.get_page(page_number)
+# Remove assignment for given student of given test
+def unassign(request, id):
+    if request.user.is_authenticated and request.user.is_teacher:
+        if request.method == "POST":
+            try:
+                user = User.objects.get(pk=int(request.POST["remove"]))
+                test = Test.objects.get(pk=id)
+            
+                assignment = user.tests_assignments.get(test=test)
+                assignment.delete()
+                
+                messages.success(request, f'Test successfully removed from {user.first_name} {user.last_name}.')
+                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
+            except:
+                messages.error(request, f'You must select a student.')
+                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
 
-    return render(request, "tests/teacher_results.html", {
-        "assignments": assignments
-    })
-
+# Render HTML for given test/part/question form
 def test_form_layout(request, layout):
     if layout == 'test':
         return render(request, "tests/test_form_layout.html", {
@@ -410,33 +446,3 @@ def test_form_layout(request, layout):
         "question_number": request.GET.get('question_number'),
         "part_number": request.GET.get('part_number')
     })
-
-def assign(request, id):
-    if request.user.is_authenticated and request.user.is_teacher:
-        if request.method == "POST":
-            try:
-                user = User.objects.get(pk=int(request.POST["assign"]))
-                test = Test.objects.get(pk=id)
-                assigned_date = datetime.date.today()
-                assignment = TestAssignment(user=user, test=test, assigned_date=assigned_date)
-                assignment.save()
-                messages.success(request, f'Test successfully assigned to {user.first_name} {user.last_name}')
-                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
-            except:
-                messages.error(request, f'You must select a student.')
-                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
-def unassign(request, id):
-    if request.user.is_authenticated and request.user.is_teacher:
-        if request.method == "POST":
-            try:
-                user = User.objects.get(pk=int(request.POST["remove"]))
-                test = Test.objects.get(pk=id)
-            
-                assignment = user.tests_assignments.get(test=test)
-                assignment.delete()
-                
-                messages.success(request, f'Test successfully removed from {user.first_name} {user.last_name}.')
-                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
-            except:
-                messages.error(request, f'You must select a student.')
-                return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
