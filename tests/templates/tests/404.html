@@ -1,0 +1,20 @@
+{% extends "tests/layout.html" %}
+{% load static %}
+
+{% block body %}
+<section class="event_section layout_padding">
+  <div class="container">
+    <div class="heading_container">
+      <h3>
+        404 (Not found)
+      </h3>
+      <p>
+        Sorry. We couldn't find the page you are trying to reach.
+      </p>
+    </div>
+    <div class="event_container">
+      {{ message }}
+    </div>
+  </div>
+</section>
+{% endblock %}

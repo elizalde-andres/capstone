@@ -4,55 +4,46 @@ let starting_part_question = 1
 let category_name = ""
 
 document.addEventListener('DOMContentLoaded', function () {
-    try{
-        load_form()
-        edit_btn = document.querySelector("#edit-btn")
+
+    // If the page is new test, load the new test form
+    new_test = document.querySelector("#test-form")
+    if (new_test){
+        add_empy_new_test_form()
+    }
+
+    // If the page has the edit button, create the edit test form and populate with existing data
+    edit_btn = document.querySelector("#edit-btn")
+    if (edit_btn){
         edit_btn.addEventListener("click", () => {
             edit_btn.style.display = "none"
             edit_test(edit_btn.value)
         })
-    } catch(err) {
     }
-
-    document.addEventListener('click', event => {
-
-        // Find what was clicked on
-        const element = event.target;
-    
-        // Check if the user clicked on a hide button
-        if (element.className === 'show') {
-            element.parentElement.style.animationPlayState = 'running';
-            element.parentElement.addEventList
-        }
-        
-    });
 })
 
-async function load_form() {
-    try{
-        new_test_form = await fetch('/test_form_layout/test')
-        new_test_form = await new_test_form.text()
-        
-        
-        await (document.querySelector("#test-form").innerHTML = new_test_form)
+async function add_empy_new_test_form() {
+    new_test_form = await fetch('/test_form_layout/test')
+    new_test_form = await new_test_form.text()
+    
+    await (document.querySelector("#test-form").innerHTML = new_test_form)
 
-        category = document.querySelector("#test-category > select")
-        
-        category.addEventListener("change",() => {
-            document.querySelector("#parts-forms").innerHTML = ""
-            if (category.options[category.selectedIndex].text != ""){
-                category_name = category.options[category.selectedIndex].text
-                add_empty_part_form();
-            }
-        })
-    } catch(err) {
-    }
-
+    category = document.querySelector("#test-category > select")
+    
+    category.addEventListener("change",() => {
+        document.querySelector("#parts-forms").innerHTML = ""
+        if (category.options[category.selectedIndex].text != ""){
+            category_name = category.options[category.selectedIndex].text
+            add_empty_part_form();
+        }
+    })
 }
 
+// Generates a new empty part form
 async function add_empty_part_form() {
+    // Create new part form
     part_forms = document.querySelector("#parts-forms");
 
+    // Get HTML for part form
     new_part_form = await fetch('/test_form_layout/test_part?' + new URLSearchParams({
         category: category_name,
         part_number: part_number
@@ -67,6 +58,7 @@ async function add_empty_part_form() {
     await add_empty_question_form();
 }
 
+// Hides unwanted buttons and sets the variables for creating a new part form. Then generates a new empty part form
 async function add_new_part() {
     document.querySelector(`#add-question-${question_number}`).style.display = "none"
     document.querySelector(`#delete-question-${question_number}`).style.display = "none"
@@ -78,9 +70,12 @@ async function add_new_part() {
     await add_empty_part_form()
 }
 
+// Generates a new empty question form
 async function add_empty_question_form() {
+    // Create question form
     question_forms = document.querySelector(`#question-forms-${part_number}`)
 
+    // Get HTML for question form
     new_question_form = await fetch('/test_form_layout/question?' + new URLSearchParams({
         category: category_name,
         question_number: question_number,
@@ -95,11 +90,11 @@ async function add_empty_question_form() {
         document.querySelector(`#delete-question-${question_number}`).style.display = "none"
     }
 
+    // Events for adding/deleting questions
     document.querySelector(`#add-question-${question_number}`).addEventListener("click", () => add_new_question())
 
     document.querySelector(`#delete-question-${question_number}`).addEventListener("click", function () {
         document.querySelector(`#question-form-${part_number}-${question_number}`).remove();
-        
         question_number -= 1;
         document.querySelector(`#add-question-${question_number}`).style.display = "inline"
         if (question_number != starting_part_question) {
@@ -108,6 +103,7 @@ async function add_empty_question_form() {
     })
 }
 
+// Hides unwanted buttons and sets the variables for creating a new question form. Then generates a new empty question form
 async function add_new_question() {
     document.querySelector(`#add-question-${question_number}`).style.display = "none"
     document.querySelector(`#delete-question-${question_number}`).style.display = "none"
@@ -115,9 +111,10 @@ async function add_new_question() {
     await add_empty_question_form();
 }
 
-
+// Generates test edition form and populates it with existing data
 async function edit_test(id) {
 
+    // Retrieve test data (Title, category, parts (and parts info), questions (and questions info))
     test_data = await fetch('/get_test?' + new URLSearchParams({
         id: id
     }))
@@ -128,11 +125,14 @@ async function edit_test(id) {
     document.querySelector("#view-test-section").style.display = 'none';
     document.querySelector("#edit-test-view").innerHTML = '<div id="test-form"></div>';
 
-    await load_form();
+    // Add an empty test form
+    await add_empy_new_test_form();
+    // Change texts and action form
     document.querySelector("#form-title").innerHTML = "Edit test"
     document.querySelector("#main-form").action = `/edit_test/${id}`
     document.querySelector("#confirm-button").innerHTML = "Save"
 
+    // Fill test form with existing data
     input_title = document.querySelector("#test-form-title > input")
     input_title.value = test_data.title
 
@@ -140,7 +140,7 @@ async function edit_test(id) {
     select_category.value = test_data.category_id
     select_category.setAttribute("disabled", "disabled")
 
-    // Create Part 1 and its questions forms
+    // Add Part 1 form and its questions forms
     await add_empty_part_form()
 
     current_question_answers = test_data.parts[part_number-1].questions[question_number-1].correct_answers
@@ -152,7 +152,7 @@ async function edit_test(id) {
         document.querySelector(`#correct-answers-${part_number}-${question_number}`).value = current_question_answers
     }
 
-    // Create Parts 2, 3, ... and its questions forms
+    // Add Parts 2, 3, ... and its questions forms (and fill with existing data)
     for (var i = 1; i < Object.keys(test_data.parts).length; i++) {
         await add_new_part()
         for (var j = 1; j < Object.keys(test_data.parts[part_number-1].questions).length; j++) {
@@ -164,7 +164,7 @@ async function edit_test(id) {
         document.querySelector(`#correct-answers-${part_number}-${question_number}`).value = current_question_answers
     }
 
-    // Fill parts data
+    // Fill part form with existing data
     for (var i = 0; i < part_number; i++) {
         document.querySelector(`#text-content-${i+1}`).value = test_data.parts[i].content
         document.querySelector(`#is-multiple-choice-${i+1}`).checked = test_data.parts[i].is_multiple_choice
@@ -178,6 +178,7 @@ async function edit_test(id) {
 
 }
 
+// Save the student's answers when pressing next, previous or finish.
 async function save_current_answers(assignment_id, finish, url) {
     answers = {}
 
@@ -195,11 +196,5 @@ async function save_current_answers(assignment_id, finish, url) {
             answers: answers
         })
     })
-    
     location.href = url
-    
 }
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }

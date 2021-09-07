@@ -3,7 +3,7 @@
 
 {% block script %}
     {{ request.user.id|json_script:"user_id" }}
-    <script src="{% static 'tests/js/test.js' %}"></script>
+    <script src="{% static 'tests/js/add_edit_test.js' %}"></script>
 {% endblock %}
 
 {% block body %}

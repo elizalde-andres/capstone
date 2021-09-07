@@ -29,6 +29,7 @@ class RegisterForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
     confirmation = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Repeat Password'}))
 
+# Index page shows all created tests to the teacher, and assigned and finished tests to students
 def index(request):
     if request.user.is_authenticated:
         if request.user.is_teacher:
@@ -45,6 +46,7 @@ def index(request):
                 "assigned_tests": assigned_tests,
                 "finished_tests": finished_tests
             })
+    # If user is not logged in, redirect to the login page
     else:
         return HttpResponseRedirect(reverse("login"))
 
@@ -116,24 +118,6 @@ def register(request):
             "form": RegisterForm()
         })
 
-
-def tests_view(request):
-    if request.user.is_authenticated:
-        if request.user.is_teacher:
-            tests = Test.objects.all().order_by("-timestamp")
-            return render(request, "tests/index.html", {
-                "tests": tests
-            })
-        else:
-            tests = request.user.tests_assignments.all()
-            assigned_tests = tests.filter(finished_date=None).order_by("-assigned_date")
-            finished_tests = tests.exclude(finished_date=None).order_by("-finished_date")
-
-            return render(request, "tests/index.html", {
-                "assigned_tests": assigned_tests,
-                "finished_tests": finished_tests
-            })
-
 def test_view(request, id, assignment_id = None):
     try:
         test = Test.objects.get(pk=id)
@@ -144,13 +128,22 @@ def test_view(request, id, assignment_id = None):
 
         assignable = User.objects.exclude(pk__in=[user.id for user in assigned])
     except:
-        return render(request, "tests/index.html", {
-            "message": "Invalid test part"
+        return render(request, "tests/404.html", {
+            "message": "The test doesn't exist."
         })
 
     assignment = None
     if assignment_id:
-        assignment = TestAssignment.objects.get(pk=assignment_id)
+        try:
+            assignment = TestAssignment.objects.get(pk=assignment_id)
+            if assignment.user != request.user:
+                return render(request, "tests/404.html", {
+                        "message": "You don't have access to someone else's test assignments."
+                    })
+        except:
+            return render(request, "tests/404.html", {
+                "message": "The assignment doesn't exist."
+            })
     
     paginator = Paginator(test_parts,1)
     page_number = request.GET.get('part')
