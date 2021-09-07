@@ -59,7 +59,7 @@
             </button>
           </div>
         </div>
-        <div class="row results-table" id="results-{{ assignment.id }}">
+        <div class="row results-table show" id="results-{{ assignment.id }}">
           <div class="col-md-12">
             <div class="container-fluid">
               <div class="row">
@@ -107,7 +107,7 @@
           <div class="row">
             <div class="col-md-12 text-right">                    
               <button type="button" class="btn update-score-btn" value="{{ assignment.id }}" id="update-score-{{ assignment.id }}">
-                <div class="btn-box"><a class="page-link mt-0">Update score</a></div>
+                <div class="btn-box"><a href="#" onclick="update_score('{{ assignment.id }}', '{{ assignment.test.id }}')" class="page-link mt-0">Update score</a></div>
               </button>
             </div>
           </div>
