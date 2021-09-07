@@ -33,7 +33,7 @@ def index(request):
     if request.user.is_authenticated:
         if request.user.is_teacher:
             tests = Test.objects.all().order_by("-timestamp")
-            return render(request, "tests/tests.html", {
+            return render(request, "tests/index.html", {
                 "tests": tests
             })
         else:
@@ -41,7 +41,7 @@ def index(request):
             assigned_tests = tests.filter(finished_date=None).order_by("-assigned_date")
             finished_tests = tests.exclude(finished_date=None).order_by("-finished_date")
 
-            return render(request, "tests/tests.html", {
+            return render(request, "tests/index.html", {
                 "assigned_tests": assigned_tests,
                 "finished_tests": finished_tests
             })
@@ -121,7 +121,7 @@ def tests_view(request):
     if request.user.is_authenticated:
         if request.user.is_teacher:
             tests = Test.objects.all().order_by("-timestamp")
-            return render(request, "tests/tests.html", {
+            return render(request, "tests/index.html", {
                 "tests": tests
             })
         else:
@@ -129,7 +129,7 @@ def tests_view(request):
             assigned_tests = tests.filter(finished_date=None).order_by("-assigned_date")
             finished_tests = tests.exclude(finished_date=None).order_by("-finished_date")
 
-            return render(request, "tests/tests.html", {
+            return render(request, "tests/index.html", {
                 "assigned_tests": assigned_tests,
                 "finished_tests": finished_tests
             })
@@ -144,7 +144,7 @@ def test_view(request, id, assignment_id = None):
 
         assignable = User.objects.exclude(pk__in=[user.id for user in assigned])
     except:
-        return render(request, "tests/tests.html", {
+        return render(request, "tests/index.html", {
             "message": "Invalid test part"
         })
 
@@ -398,23 +398,21 @@ def teacher_results(request, test_id):
         "assignments": assignments
     })
 
-def abm_test_layout(request):
-    return render(request, "tests/abm_test_layout.html", {
+def test_form_layout(request, layout):
+    if layout == 'test':
+        return render(request, "tests/test_form_layout.html", {
         "test_form": NewTestForm()
-    })
-
-def abm_testpart_layout(request):
+        })
+    elif layout == 'test_part':
+        category =request.GET.get('category')
     
-    category =request.GET.get('category')
-    
-    return render(request, "tests/abm_testpart_layout.html", {
-        "category": category,
-        "part_number": request.GET.get('part_number')
-    })
-
-def abm_question_layout(request):
-    category = request.GET.get('category')
-    return render(request, "tests/abm_question_layout.html", {
+        return render(request, "tests/test_form_layout.html", {
+            "category": category,
+            "part_number": request.GET.get('part_number')
+        })
+    elif layout == 'question':
+        category = request.GET.get('category')
+    return render(request, "tests/test_form_layout.html", {
         "category": category,
         "question_number": request.GET.get('question_number'),
         "part_number": request.GET.get('part_number')

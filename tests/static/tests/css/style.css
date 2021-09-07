@@ -941,3 +941,39 @@ a:focus {
 
 /* end footer section*/
 /*# sourceMappingURL=style.css.map */
+
+@keyframes show {
+  from {
+      transform: scaleY(0);
+      transform-origin: top;
+  }
+  to {
+      transform: scaleY(1);
+      transform-origin: top;
+  }
+}
+
+.show {
+  animation-name: show;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  animation-play-state: paused;
+}
+
+@keyframes hide {
+  from {
+      transform: scaleY(1);
+      transform-origin: top;
+  }
+  to {
+      transform: scaleY(0);
+      transform-origin: top;
+  }
+}
+
+.hide {
+  animation-name: hide;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  animation-play-state: paused;
+}

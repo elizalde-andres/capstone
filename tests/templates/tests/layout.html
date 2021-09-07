@@ -42,6 +42,7 @@
             </h3>
             <span>Your English Tests</span>
           </a>
+          
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -71,6 +72,13 @@
             </ul>
           </div>
         </nav>
+        {% if user.is_authenticated %}
+        <div class="row w-100">
+          <div class="text-right col pr-0">
+            Signed in as <strong>@{{ user.username }}</strong>
+          </div>
+        </div>
+        {% endif %}
       </div>
     </header>
   </div>

@@ -13,11 +13,24 @@ document.addEventListener('DOMContentLoaded', function () {
         })
     } catch(err) {
     }
+
+    document.addEventListener('click', event => {
+
+        // Find what was clicked on
+        const element = event.target;
+    
+        // Check if the user clicked on a hide button
+        if (element.className === 'show') {
+            element.parentElement.style.animationPlayState = 'running';
+            element.parentElement.addEventList
+        }
+        
+    });
 })
 
 async function load_form() {
     try{
-        new_test_form = await fetch('/abm_test_layout')
+        new_test_form = await fetch('/test_form_layout/test')
         new_test_form = await new_test_form.text()
         
         
@@ -40,13 +53,14 @@ async function load_form() {
 async function add_empty_part_form() {
     part_forms = document.querySelector("#parts-forms");
 
-    new_part_form = await fetch('/abm_testpart_layout?' + new URLSearchParams({
+    new_part_form = await fetch('/test_form_layout/test_part?' + new URLSearchParams({
         category: category_name,
         part_number: part_number
     }))
     new_part_form = await new_part_form.text();
 
     await (part_forms.insertAdjacentHTML("beforeend", new_part_form));
+    document.querySelector(`#part-form-${part_number}`).style.animationPlayState = 'running';
 
     document.querySelector(`#add-part-btn-${part_number}`).addEventListener("click", () => add_new_part())
     
@@ -67,7 +81,7 @@ async function add_new_part() {
 async function add_empty_question_form() {
     question_forms = document.querySelector(`#question-forms-${part_number}`)
 
-    new_question_form = await fetch('/abm_question_layout?' + new URLSearchParams({
+    new_question_form = await fetch('/test_form_layout/question?' + new URLSearchParams({
         category: category_name,
         question_number: question_number,
         part_number: part_number
@@ -75,6 +89,7 @@ async function add_empty_question_form() {
     new_question_form = await new_question_form.text();
 
     await (question_forms.insertAdjacentHTML("beforeend",new_question_form));
+    document.querySelector(`#question-form-${part_number}-${question_number}`).style.animationPlayState = 'running';
 
     if (question_number == starting_part_question) {
         document.querySelector(`#delete-question-${question_number}`).style.display = "none"
@@ -84,6 +99,7 @@ async function add_empty_question_form() {
 
     document.querySelector(`#delete-question-${question_number}`).addEventListener("click", function () {
         document.querySelector(`#question-form-${part_number}-${question_number}`).remove();
+        
         question_number -= 1;
         document.querySelector(`#add-question-${question_number}`).style.display = "inline"
         if (question_number != starting_part_question) {
@@ -184,3 +200,6 @@ async function save_current_answers(assignment_id, finish, url) {
     
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
