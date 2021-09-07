@@ -34,7 +34,7 @@ class Test(models.Model):
 
 class TestPart(models.Model):
     def get_upload_path(self, filename):
-        return osjoin(str(self.test.title) + "-" +str(self.test.id), filename)
+        return osjoin('tests/' + str(self.test.title) + "-" +str(self.test.id), filename)
 
     timestamp = DateTimeField(auto_now_add=True, editable=False)
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="parts")

@@ -115,9 +115,7 @@ async function add_new_question() {
 async function edit_test(id) {
 
     // Retrieve test data (Title, category, parts (and parts info), questions (and questions info))
-    test_data = await fetch('/get_test?' + new URLSearchParams({
-        id: id
-    }))
+    test_data = await fetch(`/get_test/${id}`)
     test_data = await test_data.json();
 
     category_name = test_data.category_name
