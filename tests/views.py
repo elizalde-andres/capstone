@@ -30,7 +30,23 @@ class RegisterForm(forms.Form):
     confirmation = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Repeat Password'}))
 
 def index(request):
-    return render(request, "tests/index.html")
+    if request.user.is_authenticated:
+        if request.user.is_teacher:
+            tests = Test.objects.all().order_by("-timestamp")
+            return render(request, "tests/tests.html", {
+                "tests": tests
+            })
+        else:
+            tests = request.user.tests_assignments.all()
+            assigned_tests = tests.filter(finished_date=None).order_by("-assigned_date")
+            finished_tests = tests.exclude(finished_date=None).order_by("-finished_date")
+
+            return render(request, "tests/tests.html", {
+                "assigned_tests": assigned_tests,
+                "finished_tests": finished_tests
+            })
+    else:
+        return HttpResponseRedirect(reverse("login"))
 
 def login_view(request):
     if request.method == "POST":
@@ -109,18 +125,16 @@ def tests_view(request):
                 "tests": tests
             })
         else:
-            #TODO: add order_by
             tests = request.user.tests_assignments.all()
             assigned_tests = tests.filter(finished_date=None).order_by("-assigned_date")
             finished_tests = tests.exclude(finished_date=None).order_by("-finished_date")
+
             return render(request, "tests/tests.html", {
                 "assigned_tests": assigned_tests,
                 "finished_tests": finished_tests
             })
 
 def test_view(request, id, assignment_id = None):
-    print(id)
-    print(assignment_id)
     try:
         test = Test.objects.get(pk=id)
         test_parts = test.parts.order_by("part_number")
@@ -137,18 +151,12 @@ def test_view(request, id, assignment_id = None):
     assignment = None
     if assignment_id:
         assignment = TestAssignment.objects.get(pk=assignment_id)
-       
+    
     paginator = Paginator(test_parts,1)
     page_number = request.GET.get('part')
     parts = paginator.get_page(page_number)
 
-    print("*****************")
-    print(test)
-    print(parts)
-    print(assigned)
-    print(assignable)
-    print(assignment)
-
+    
     return render(request, "tests/test.html", {
         "test": test,
         "parts": parts,
@@ -230,6 +238,8 @@ def edit_test(request, id):
             test.title = title
             test.save()
 
+            assignments = test.assignments.all()
+
             for part_number in range(int(test_data["parts_count"])):
                 part_number += 1
                 part = test.parts.get(part_number=int(part_number))
@@ -252,6 +262,33 @@ def edit_test(request, id):
                     if f"question-audio-{part_number}-{question_number}" in request.FILES:
                         question.audio = request.FILES[f"question-audio-{part_number}-{question_number}"]
                     question.save()
+
+
+                    for assignment in assignments:
+                        if assignment.finished_date:
+                            # Calculate answer score
+                            correct_answers = question.correct_answers.lower()
+                            correct_answers = correct_answers.split(";")
+                            correct_answers = [answer.strip() for answer in correct_answers]
+
+                            answer = Answer.objects.get(question=question, test_assignment=assignment)
+                            
+                            if answer.answer.lower() in correct_answers:
+                                answer.score = part.max_score_per_answer
+
+                            answer.save()
+                            # Calculate assignment score
+                            assignment.score = 0
+                            for answer in assignment.answers.all():
+                                assignment.score += answer.score
+
+                            max_test_score = 0
+                            for test_part in assignment.test.parts.all():
+                                max_test_score += test_part.max_score_per_answer * test_part.questions.count()
+                            
+                            assignment.score_percent = assignment.score / max_test_score *100
+
+                            assignment.save()
             return HttpResponseRedirect(reverse("test", kwargs={'id': id}))
     else:
         messages.error(request, f'Error saving test.')
@@ -291,7 +328,7 @@ def answer(request, assignment_id):
                 
                 # Calculate answer score
                 correct_answers = question.correct_answers.lower()
-                # TODO:assign as correct if correct answrs is list
+
                 correct_answers = correct_answers.split(";")
                 correct_answers = [answer.strip() for answer in correct_answers]
                 if answer.answer.lower() in correct_answers:
@@ -349,11 +386,6 @@ def update_score(request, assignment_id, answer_id):
             return HttpResponse(status=500) 
     else:
         return HttpResponse(status=500) 
-
-def results(request, assignment_id):
-    return render(request, "tests/results.html", {
-        "assignment": TestAssignment.objects.get(pk=int(assignment_id))
-    })
 
 def teacher_results(request, test_id):
     test_assignments = Test.objects.get(pk=test_id).assignments.all().order_by("-finished_date")

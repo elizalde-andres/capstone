@@ -42,7 +42,7 @@
                       {% endfor %}
                     </select>
                     <button type="submit" class="btn">
-                      <div class="btn-box"><a class="page-link mt-0">Assign</a></div>
+                      <div class="btn-box"><a class="page-link mt-0 px-2">Assign</a></div>
                     </button>
                   </form>
                 </div>
@@ -59,7 +59,7 @@
                       {% endfor %}
                     </select>
                     <button type="submit" class="btn">
-                      <div class="btn-box"><a class="page-link mt-0">Remove</a></div>
+                      <div class="btn-box"><a class="page-link mt-0 px-2">Remove</a></div>
                     </button>
                   </form>
                 </div>
@@ -92,9 +92,106 @@
     </div>
     <div id="edit-test-view">
     </div>
+  {% else %}
+    <!-- If student finished the test, show test results -->
+    {% if assignment.finished_date %}
+      <!-- student results section -->
+      <section class="event_section layout_padding2-top">
+        <div class="container">
+          <div class="heading_container">
+            <h3>
+              Results
+            </h3>
+            
+          </div>
+          <div class="event_container">
+            <div class="row">
+              <div class="col-12">
+                <div class="box">
+                  <div class="detail-box border-0">
+                    <h4>
+                      {{ assignment.test.title }}
+                    </h4>
+                    <h6>
+                      {% if assignment.test.category.category == "Listening" %}
+                            <i class="fas fa-headphones-alt"></i>
+                      {% else %}
+                            <i class="fa fas fa-glasses"></i>
+                      {% endif %}
+                      {{ assignment.test.category }}
+                    </h6>
+                  </div>
+                  <div class="detail-box">
+                    <h1>
+                      <strong>
+                        {{ assignment.score_percent }}%
+                      </strong>
+                    </h1>
+                  </div>
+                  <div class="date-box">
+                    <h4>
+                      <span>
+                        {{ assignment.assigned_date.day }}
+                      </span>
+                      {{ assignment.assigned_date|date:"F" }}
+                    </h4>
+                    <h6>
+                      <span>
+                        Finished
+                      </span>
+                      {{ assignment.finished_date.day }} {{ assignment.finished_date|date:"F" }}
+                    </h6>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col-md-1">
+                      <strong>#</strong>
+                    </div>
+                    <div class="col-md-4">
+                      <strong>Your answer</strong>
+                    </div>
+                    <div class="col-md-5">
+                      <strong>Correct answer(s)</strong>
+                    </div>
+                    <div class="col-md-2">
+                      <strong>Score</strong>
+                    </div>
+                  </div>
+                  {% for part in assignment.test.parts.all %}
+                    {% for question in part.questions.all %}
+                      <div class="row {% cycle 'bg-light' '' %} {% if assignment|load_score:question != 0 %}text-success{% else %}text-warning{% endif %}">
+                        <div class="col-md-1">
+                          {{ question.number }}
+                        </div>
+                        <div class="col-md-4">
+                          {{ assignment|load_answer:question }}
+                        </div>
+                        <div class="col-md-5">
+                          {{ question.correct_answers }}
+                        </div>
+                        <div class="col-md-2">
+                          {{ assignment|load_score:question }}/{{ part.max_score_per_answer }}
+                        </div>
+                      </div>
+                    {% endfor %}
+                  {% endfor %}
+                </div>
+              </div>
+              </div>
+          </div>
+        </div>
+      </section>
+      <!-- end student test section -->
+    {% endif %}
   {% endif %}
+
   {% for part in parts %}
-  <!-- event section -->
+  <!-- Test content -->
   <section class="event_section layout_padding" id="view-test-section">
     <div class="container">
       <div class="heading_container">
@@ -119,7 +216,7 @@
                   {{ part.content|linebreaksbr }}
                 </div>
                 {% if part.content_img %}
-                  <img class='img-fluid w-100' src="{{ part.content_img.url }}">
+                  <img class='img-fluid w-100' style="max-width: 800px;" src="{{ part.content_img.url }}">
                 {% endif %}
                 {% if part.audio %}
                     <audio src="{{ part.audio.url }}" controls >
@@ -134,7 +231,7 @@
                   <div class="row">
                       {% for question in part.get_questions %}
                         <div class="col-md col-sm-3 col-xs-6 mt-3 pt-2">
-                          {% if assignment %}
+                          {% if assignment and not assignment.finished_date %}
                           <div class="row align-items-end">
                               <label><span class="question_number">{{ question.number }}</span>.</label>
                             <div class="col pl-1">
@@ -167,7 +264,7 @@
                       {% for question in part.get_questions %}
                       <div class="col-lg-6">
                         <div class="row align-items-end">
-                          {% if assignment %}
+                          {% if assignment and not assignment.finished_date %}
                             <label class="pl-1"><span class="question_number">{{ question.number }}</span>.</label>
                           <div class="col px-2 mb-2">
                             <input type="text" class="form-control" id="answer-{{ question.number }}" value="{{ assignment|load_answer:question }}">
@@ -203,9 +300,9 @@
                       <a class="page-link" href="#" onclick="save_current_answers('{{ assignment.id }}', false, `?part={{ parts.next_page_number }}` )" id="next-part-button">Next</a>
                   </li>
                 {% else %}
-                  {% if assignment.id %}
+                {% if assignment and not assignment.finished_date %}
                     <li class="btn-box">
-                      <a class="page-link" href="#" onclick="save_current_answers('{{ assignment.id }}', true, `{% url 'results' assignment.id %}` )" id="finish-button">Finish</a>
+                      <a class="page-link" href="#" onclick="save_current_answers('{{ assignment.id }}', true, `{% url 'test' test.id assignment.id %}` )" id="finish-button">Finish</a>
                     </li>
                   {% endif %}
                 {% endif %}
@@ -214,7 +311,7 @@
           </div>
     </div>
   </section>
-  <!-- end event section -->
+  <!-- end test content section -->
   {% endfor %}
 
 {% endblock %}

@@ -48,7 +48,6 @@
       </div>
     </div>
   </section>
-
   <!-- end student test section -->
 {% else %}
 <!-- student test section -->
@@ -94,7 +93,9 @@
             </h3>
           </div>
         </div>
-        {% endfor %}
+      {% empty %}
+      You have no new test assignments.
+      {% endfor %}
     </div>
 
     <div class="heading_container layout_padding2-top">
@@ -110,14 +111,14 @@
         <div class="box">
           <div class="img-box">
             {% if assignment.test.category.category == "Listening" %}
-              <a href="{% url 'results' assignment.id  %}"><img src="{% static 'tests/images/listening_test.jpg' %}" alt="Listening" /></a>
+              <a href="{% url 'test' assignment.test.id assignment.id  %}"><img src="{% static 'tests/images/listening_test.jpg' %}" alt="Listening" /></a>
             {% else %}
-              <a href="{% url 'results' assignment.id  %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
+              <a href="{% url 'test' assignment.test.id assignment.id  %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
             {% endif %}          
           </div>
           <div class="detail-box">
             <h4>
-              <a href="{% url 'results' assignment.id  %}">{{ assignment.test.title }}</a>
+              <a href="{% url 'test' assignment.test.id assignment.id  %}">{{ assignment.test.title }}</a>
             </h4>
             <h6>
               {{ assignment.test.category }}
@@ -143,7 +144,9 @@
             </h3>
           </div>
         </div>
-        {% endfor %}
+      {% empty %}
+        You have't finished any test yet.
+      {% endfor %}
     </div>
   </div>
 </section>

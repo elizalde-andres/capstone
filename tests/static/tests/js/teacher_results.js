@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', () => {
             button.classList.toggle("expanded");
             if (button.classList.contains("expanded")){
-                button.innerHTML = '<div class="btn-box"><a class="page-link mt-0">Collapse answers <i class="fa fa-solid fa-chevron-up"></i></a></div>';
+                button.innerHTML = '<div class="btn-box"><a class="page-link mt-0 px-3">Collapse answers <i class="fa fa-solid fa-chevron-up"></i></a></div>';
                 document.querySelector(`#results-${button.value}`).style.display = 'block';
             } else {
-                button.innerHTML = '<div class="btn-box"><a class="page-link mt-0">Expand answers <i class="fa fa-solid fa-chevron-down"></i></a></div>';
+                button.innerHTML = '<div class="btn-box"><a class="page-link mt-0 px-3">Expand answers <i class="fa fa-solid fa-chevron-down"></i></a></div>';
                 document.querySelector(`#results-${button.value}`).style.display = 'none';
             }
 

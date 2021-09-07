@@ -2,71 +2,155 @@
 {% load static %}
 
 {% block body %}
-    <!-- slider section -->
-    <section class=" slider_section position-relative">
-      <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-        <ol class="carousel-indicators">
-          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-        </ol>
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <div class="container">
-              <div class="row">
-                <div class="col">
-                  <div class="detail-box">
-                    <div>
-                      <h1>
-                        E D U C A T I O N
-                      </h1>
-                      <a href="">
-                        Read More
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
+{% if user.is_teacher %}
+  <!-- student test section -->
+  <section class="event_section layout_padding">
+    <div class="container">
+      <div class="heading_container">
+        <h3>
+          Tests
+        </h3>
+      </div>
+      <div class="event_container">
+        {% for test in tests %}
+          <div class="box">
+            <div class="img-box">
+              {% if test.category.category == "Reading and Use of English" %}
+                <a href="{% url 'test' test.id %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
+              {% else %}
+                <a href="{% url 'test' test.id %}"><img src="{% static 'tests/images/listening_test.jpg' %}" alt="Listening" /></a>
+              {% endif %}
+            </div>
+            <div class="detail-box">
+              <h4>
+                <a href="{% url 'test' test.id %}">{{ test.title }}</a>
+              </h4>
+              <h6>
+                {% if test.category.category == "Listening" %}
+                      <i class="fas fa-headphones-alt"></i>
+                {% else %}
+                      <i class="fa fas fa-glasses"></i>
+                {% endif %}
+                {{ test.category }}
+              </h6>
+            </div>
+            <div class="date-box">
+              <h3>
+                <span>
+                  {{ test.timestamp.day }} 
+                </span>
+                  {{ test.timestamp|date:"F" }}
+              </h3>
+              <h4>{{ test.timestamp.year }}</h4>
             </div>
           </div>
-          <div class="carousel-item ">
-            <div class="container">
-              <div class="row">
-                <div class="col">
-                  <div class="detail-box">
-                    <div>
-                      <h1>
-                        B 2  F I R S T
-                      </h1>
-                      <a href="">
-                        Read More
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {% endfor %}
+      </div>
+    </div>
+  </section>
+  <!-- end student test section -->
+{% else %}
+<!-- student test section -->
+<section class="event_section layout_padding">
+  <div class="container">
+    <div class="heading_container">
+      <h3>
+        Assigned tests
+      </h3>
+      <p>
+        Here are your next assignments.
+      </p>
+    </div>
+    <div class="event_container">
+      {% for assignment in assigned_tests %}
+        <div class="box">
+          <div class="img-box">
+            {% if assignment.test.category.category == "Listening" %}
+              <a href="{% url 'test' assignment.test.id assignment.id  %}"><img src="{% static 'tests/images/listening_test.jpg' %}" alt="Listening" /></a>
+            {% else %}
+              <a href="{% url 'test' assignment.test.id assignment.id  %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
+            {% endif %}
             </div>
+          <div class="detail-box">
+            <h4>
+              <a href="{% url 'test' assignment.test.id assignment.id  %}">{{ assignment.test.title }}</a>
+            </h4>
+            <h6>
+              {% if assignment.test.category.category == "Listening" %}
+                    <i class="fas fa-headphones-alt"></i>
+              {% else %}
+                    <i class="fa fas fa-glasses"></i>
+              {% endif %}
+              {{ assignment.test.category }}
+            </h6>
           </div>
-          <div class="carousel-item ">
-            <div class="container">
-              <div class="row">
-                <div class="col">
-                  <div class="detail-box">
-                    <div>
-                      <h1>
-                        E N G L I S H
-                      </h1>
-                      <a href="">
-                        Read More
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="date-box">
+            <h3>
+              <span>
+                {{ assignment.assigned_date.day }}
+              </span>
+              {{ assignment.assigned_date|date:"F" }}
+            </h3>
           </div>
         </div>
-      </div>
-    </section>
-    <!-- end slider section -->
+      {% empty %}
+      You have no new test assignments.
+      {% endfor %}
+    </div>
+
+    <div class="heading_container layout_padding2-top">
+      <h3>
+        Finished tests
+      </h3>
+      <p>
+        Resulst for the tests you have taken.
+      </p>
+    </div>
+    <div class="event_container">
+      {% for assignment in finished_tests %}
+        <div class="box">
+          <div class="img-box">
+            {% if assignment.test.category.category == "Listening" %}
+              <a href="{% url 'test' assignment.test.id assignment.id  %}"><img src="{% static 'tests/images/listening_test.jpg' %}" alt="Listening" /></a>
+            {% else %}
+              <a href="{% url 'test' assignment.test.id assignment.id  %}"><img src="{% static 'tests/images/uoe_test.jpg' %}" alt="Reading and Use of English" /></a>
+            {% endif %}          
+          </div>
+          <div class="detail-box">
+            <h4>
+              <a href="{% url 'test' assignment.test.id assignment.id  %}">{{ assignment.test.title }}</a>
+            </h4>
+            <h6>
+              {{ assignment.test.category }}
+            </h6>
+          </div>
+          <div class="date-box">
+            <h4>
+              <span>
+                {{ assignment.assigned_date.day }}
+              </span>
+              {{ assignment.assigned_date|date:"F" }}
+            </h4>
+            <h6>
+              <span>
+                Finished
+              </span>
+              {{ assignment.finished_date.day }} {{ assignment.finished_date|date:"F" }}
+            </h6>
+            <h3>
+              <span>
+                {{ assignment.score_percent }}%
+              </span>
+            </h3>
+          </div>
+        </div>
+      {% empty %}
+        You have't finished any test yet.
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- end student test section -->
+{% endif %}
 {% endblock %}

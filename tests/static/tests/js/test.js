@@ -108,7 +108,6 @@ async function edit_test(id) {
     test_data = await test_data.json();
 
     category_name = test_data.category_name
-    console.log(test_data)
 
     document.querySelector("#view-test-section").style.display = 'none';
     document.querySelector("#edit-test-view").innerHTML = '<div id="test-form"></div>';
