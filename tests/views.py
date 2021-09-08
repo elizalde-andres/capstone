@@ -168,9 +168,13 @@ def test_view(request, id, assignment_id = None):
     
 class NewTestForm(forms.Form):
     title = forms.CharField(max_length=64, widget=forms.TextInput(attrs={'placeholder': 'Title', 'autofocus': 'autofocus'}))
-    categories = [(0, "")]
-    categories += [(category.id, category.category) for category in Category.objects.all().order_by("category")]
-    category = forms.ChoiceField(choices=categories, label="Category", widget=forms.Select(attrs = { 'class': 'form-control'}))
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        categories = [(0, "")]
+        categories += [(category.id, category.category) for category in Category.objects.all().order_by("category")]
+        category = forms.ChoiceField(choices=categories, label="Category", widget=forms.Select(attrs = { 'class': 'form-control'}))
+        self.fields['category'] = category
 
 # Display all the finished assignment for the given test.
 def teacher_results(request, test_id):

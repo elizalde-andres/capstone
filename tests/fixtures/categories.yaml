@@ -1,0 +1,8 @@
+- model: tests.Category
+  pk: 1
+  fields:
+    category: Reading and Use of English
+- model: tests.Category
+  pk: 2
+  fields:
+    category: Listening

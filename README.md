@@ -24,6 +24,7 @@ The app is designed to be used by two different types of user: teachers and stud
   - `/capstone` Django project folder
   - `/media/tests` Folder to store apps images and audio files
   - `/tests` App folder
+    - `/fixtures/categories.yaml` Initial data for the Category model
     - `/static` Static files folder
       - `/css` Folder containing css files
       - `/images` Folder containing images files used in the app
@@ -53,7 +54,9 @@ The app is designed to be used by two different types of user: teachers and stud
 1. In your terminal, `cd` to the `capstone` main directory.
 2. Run `python manage.py makemigrations` to make migrations.
 3. Run `python manage.py migrate` to apply migrations to your database.
-4. Run `python manage.py createsuperuser` to create an admin user.
-5. In your browser go to `http://127.0.0.1:8000/register/` and register an account (that will be flagged as teacher), then `logout`.
-6. In your browser go to `http://127.0.0.1:8000/admin/` and login with the admin user created in step 4. Go to the `Users` admin page and mark _admin user_ and the _user created in step 5_ as teacher (by checking the `Is teacher` checkbox).
-7. In your browser go to `http://127.0.0.1:8000/` (you will be redirected to the login page). You can login as teacher and start creating tests, or you can go the register page and register for a new (student) account.
+4. Run `python3 manage.py loaddata tests/fixtures/categories.yaml` to provide initial data for the Category model.
+5. Run `python manage.py createsuperuser` to create an admin user.
+6. Run `python manage.py runserver`
+7. In your browser go to `http://127.0.0.1:8000/register/` and register an account (that will be flagged as teacher), then `logout`.
+8. In your browser go to `http://127.0.0.1:8000/admin/` and login with the admin user created in step 4. Go to the `Users` admin page and mark _admin user_ and the _user created in step 5_ as teacher (by checking the `Is teacher` checkbox).
+9. In your browser go to `http://127.0.0.1:8000/` (you will be redirected to the login page). You can login as teacher and start creating tests, or you can go the register page and register for a new (student) account.
