@@ -3,22 +3,22 @@ Final project for _CS50’s Web Programming with Python and JavaScript_.
 This web app simulates _Listening_, and _Reading and Use of English_ parts of the Cambridge English Qualifications exams.
 ## Distinctiveness and Complexity
 The app is designed to be used by two different types of user: teachers and students. Its complexity relies on the many models and relationships between them (compared to the rest of the course's projects). As required, the project was built using Django on the back-end, and Javascript on the front-end.
-### Teacher's features:
+### Teachers' features:
 - **Create new test**: choosing one of the two categories, typing a task (or uploading an image), uploading (if needed) audio files, typing the correct(s) answer(s) for each question.
 - **Tests page**: view all created tests.
 - **Individual test page**: see the content of the test and:
   - _Edit test_: change title, task text, image, or audio, modify or add more correct answers for each question.
   - _Assign test_: ability to assign a test for a student to solve.
   - _Remove assignment_.
-  - _See results_: of the students who have completed the assignment. See the percentage score of the test, individual answers for each question, assign custom score to incorrect answers (in case of spelling mistakes, for example).
-### Student's features:
+  - _See results_: View the tests results for the students who have completed the assignment. See the score percentage of the test, individual answers for each question, assign a custom score to incorrect answers (in case of spelling mistakes, for example).
+### Students' features:
 - **Tests page**: view the list of all (assigned and finished) tests.
 - **Assigned test**:
-  - _See the content_: of each test part (text and/or image), and - in the case of Listening test - listen to the audio files.
+  - _See the content_: View the task text and/or image, and - in the case of Listening test - listen to the audio files, for each part of the test.
   - _Answer question_: posibility to write or select an aswer for each question.
-  - _Continue later_: every time the student clics to see next or previous part of an assigned test, the answers are saved in the database. This allows the student to continue answering the exam later (he/she can even logout and login again to continue).
-  - _Finish_: when the student considers that the test is ready to be rated, he/she can click the Finish button. It will take the user to the results page.
-- **Finished test**: when clicking on any finishined test of the list, or after finishing a test, the user will be taken to the results page of that test. It will display the percentage score for the whole test, and a table showing the answer given to each question as well as the correct(s) answer(s), and the score for that answer (the percentage score and individual scores will change if the teacher decides to assign a custom score to a given answer, or if he/she decides to change the correct(s) answer(s) for a particular question). This page also shows the test content (text/images/audios).
+  - _Continue later_: every time the student clicks to see the next or previous parts of an assigned test; the answers are saved in the database. This allows the student to continue answering the exam later (he/she can even log out and log in again to continue).
+  - _Finish_: when the student considers that the test is ready to be graded, he/she can click the Finish button. It will take the user to the results page.
+- **Finished test**: when clicking on any finishined test of the list, or after finishing a test, the user will be taken to the results page of that test. It will display the score percentage for the whole test, and a table showing the answer given to each question as well as the correct(s) answer(s), and the score for that answer (the score percentage and individual scores could change if the teacher decides to assign a custom score to a given answer, or if he/she decides to change the correct(s) answer(s) for a particular question). This page also shows the test contents (text/images/audios).
 # Folders and files
 - `Main directory`
   - `/capstone` Django project folder
