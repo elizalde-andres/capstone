@@ -13,7 +13,6 @@ urlpatterns = [
     path("test/<int:id>/<int:assignment_id>", views.test_view, name="test"),
     path("teacher_results/<int:test_id>", views.teacher_results, name="teacher_results"),
 
-    # API
     path("new_test/", views.new_test, name="new_test"),
     path("get_test/<int:id>", views.get_test, name="get_test"),
     path("edit_test/<int:id>", views.edit_test, name="edit_test"),

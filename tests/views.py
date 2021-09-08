@@ -5,11 +5,9 @@ from django import forms
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.core import paginator
 from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.db.models.fields import EmailField
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http.response import JsonResponse
 from django.shortcuts import render
@@ -34,6 +32,11 @@ def index(request):
     if request.user.is_authenticated:
         if request.user.is_teacher:
             tests = Test.objects.all().order_by("-timestamp")
+
+            paginator = Paginator(tests,10)
+            page_number = request.GET.get('page')
+            tests = paginator.get_page(page_number)
+
             return render(request, "tests/index.html", {
                 "tests": tests
             })
@@ -41,6 +44,10 @@ def index(request):
             tests = request.user.tests_assignments.all()
             assigned_tests = tests.filter(finished_date=None).order_by("-assigned_date")
             finished_tests = tests.exclude(finished_date=None).order_by("-finished_date")
+
+            paginator = Paginator(finished_tests,10)
+            page_number = request.GET.get('page')
+            finished_tests = paginator.get_page(page_number)
 
             return render(request, "tests/index.html", {
                 "assigned_tests": assigned_tests,

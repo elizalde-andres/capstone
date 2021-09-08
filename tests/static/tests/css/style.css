@@ -959,21 +959,3 @@ a:focus {
   animation-fill-mode: forwards;
   animation-play-state: paused;
 }
-
-@keyframes hide {
-  from {
-      transform: scaleY(1);
-      transform-origin: top;
-  }
-  to {
-      transform: scaleY(0);
-      transform-origin: top;
-  }
-}
-
-.hide {
-  animation-name: hide;
-  animation-duration: 0.5s;
-  animation-fill-mode: forwards;
-  animation-play-state: paused;
-}
