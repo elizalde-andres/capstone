@@ -14,11 +14,11 @@ The app is designed to be used by two different types of user: teachers and stud
 ### Student's features:
 - **Tests page**: view the list of all (assigned and finished) tests.
 - **Assigned test**:
-  - _See the content_: of each test part (text and/or image), and - in the case of Listening page - listen to the audio files.
+  - _See the content_: of each test part (text and/or image), and - in the case of Listening test - listen to the audio files.
   - _Answer question_: posibility to write or select an aswer for each question.
-  - _Continue later_: every time the student clics to see next or previous part of an assigned test, the answer are saved in the database. This allows the student to continue later answering the exam (he/she can eve logout and login again to continue).
+  - _Continue later_: every time the student clics to see next or previous part of an assigned test, the answers are saved in the database. This allows the student to continue answering the exam later (he/she can even logout and login again to continue).
   - _Finish_: when the student considers that the test is ready to be rated, he/she can click the Finish button. It will take the user to the results page.
-- **Finished test**: when clicking on any finishined test of the list, or after finishing a test, the user will be taken to the results page of that test. It will display the percentage score for the whole test, and a table showing the answer given to each question as well as the correct(s) answer(s), and the score for that answer (the percentage score and individual scores will change if the teacher decides to assign a custom score to a given answer, or if he/she decides to change the correct(s) answer(s) for a particular question. This page also shows the test content (text/images/audios).
+- **Finished test**: when clicking on any finishined test of the list, or after finishing a test, the user will be taken to the results page of that test. It will display the percentage score for the whole test, and a table showing the answer given to each question as well as the correct(s) answer(s), and the score for that answer (the percentage score and individual scores will change if the teacher decides to assign a custom score to a given answer, or if he/she decides to change the correct(s) answer(s) for a particular question). This page also shows the test content (text/images/audios).
 # Folders and files
 - `Main directory`
   - `/capstone` Django project folder
@@ -55,5 +55,5 @@ The app is designed to be used by two different types of user: teachers and stud
 3. Run `python manage.py migrate` to apply migrations to your database.
 4. Run `python manage.py createsuperuser` to create an admin user.
 5. In your browser go to `http://127.0.0.1:8000/register/` and register an account (that will be flagged as teacher), then `logout`.
-6. In your browser go to `http://127.0.0.1:8000/admin/` and login with the admin user created in step 4. Go to the `Users` admin page and mark _admin user_ and the _user created in step 5_ as teacher (by checking the is_teacher box).
+6. In your browser go to `http://127.0.0.1:8000/admin/` and login with the admin user created in step 4. Go to the `Users` admin page and mark _admin user_ and the _user created in step 5_ as teacher (by checking the `Is teacher` checkbox).
 7. In your browser go to `http://127.0.0.1:8000/` (you will be redirected to the login page). You can login as teacher and start creating tests, or you can go the register page and register for a new (student) account.
