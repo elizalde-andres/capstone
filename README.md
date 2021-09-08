@@ -20,7 +20,7 @@ The app is designed to be used by two different types of user: teachers and stud
   - _Finish_: when the student considers that the test is ready to be graded, he/she can click the Finish button. It will take the user to the results page.
 - **Finished test**: when clicking on any finishined test of the list, or after finishing a test, the user will be taken to the results page of that test. It will display the score percentage for the whole test, and a table showing the answer given to each question as well as the correct(s) answer(s), and the score for that answer (the score percentage and individual scores could change if the teacher decides to assign a custom score to a given answer, or if he/she decides to change the correct(s) answer(s) for a particular question). This page also shows the test contents (text/images/audios).
 # Folders and files
-- `Main directory`
+- `capstone`
   - `/capstone` Django project folder
   - `/media/tests` Folder to store apps images and audio files
   - `/tests` App folder
