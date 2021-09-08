@@ -49,12 +49,13 @@ The app is designed to be used by two different types of user: teachers and stud
     - `/urls.py` URL paths for the app
     - `/views.py` View methods for the app
   - `/manage.py`Django project file
+  - `/requirements.txt` Required Python packages to run the app
   - `/README.md` This file 
 # How to run the app
 1. In your terminal, `cd` to the `capstone` main directory.
 2. Run `python manage.py makemigrations` to make migrations.
 3. Run `python manage.py migrate` to apply migrations to your database.
-4. Run `python3 manage.py loaddata tests/fixtures/categories.yaml` to provide initial data for the Category model.
+4. Run `python manage.py loaddata tests/fixtures/categories.yaml` to provide initial data for the Category model.
 5. Run `python manage.py createsuperuser` to create an admin user.
 6. Run `python manage.py runserver`
 7. In your browser go to `http://127.0.0.1:8000/register/` and register an account (that will be flagged as teacher), then `logout`.
