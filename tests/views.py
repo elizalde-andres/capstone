@@ -180,7 +180,7 @@ class NewTestForm(forms.Form):
 def teacher_results(request, test_id):
     test_assignments = Test.objects.get(pk=test_id).assignments.exclude(finished_date=None).order_by("-finished_date")
 
-    paginator = Paginator(test_assignments,2)
+    paginator = Paginator(test_assignments,10)
     page_number = request.GET.get('part')
     assignments = paginator.get_page(page_number)
 
