@@ -60,5 +60,5 @@ The app is designed to be used by two different types of user: teachers and stud
 5. Run `python manage.py createsuperuser` to create an admin user.
 6. Run `python manage.py runserver`
 7. In your browser go to `http://127.0.0.1:8000/register/` and register an account (that will be flagged as teacher), then `logout`.
-8. In your browser go to `http://127.0.0.1:8000/admin/` and login with the admin user created in step 4. Go to the `Users` admin page and mark _admin user_ and the _user created in step 5_ as teacher (by checking the `Is teacher` checkbox).
+8. In your browser go to `http://127.0.0.1:8000/admin/` and login with the admin user created in step 4. Go to the `Users` admin page and mark _admin user_ and the _user created in step 5_ as teacher (by checking the `Is teacher` checkbox). Finally, `logout`.
 9. In your browser go to `http://127.0.0.1:8000/` (you will be redirected to the login page). You can login as teacher and start creating tests, or you can go the register page and register for a new (student) account.
